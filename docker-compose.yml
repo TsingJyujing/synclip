@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  # Start API in local environment
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: "minio-access-key-123"
+      MINIO_ROOT_PASSWORD: "minio-secret-key-456"
+    volumes:
+      - minio-data:/data
+    command:
+      - "server"
+      - "/data"
+      - "--console-address"
+      - ":9001"
+  mysql:
+    image: mysql:8
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql-root-pwd
+      - MYSQL_DATABASE=synclip
+      - MYSQL_USER=synclip
+      - MYSQL_PASSWORD=synclip-pwd
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_520_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+
+volumes:
+  mysql-data:
+  minio-data:
