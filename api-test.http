@@ -1,0 +1,124 @@
+###
+GET {{host}}/api/health/
+
+> {%
+client.test("Test request status code", function (){
+    client.assert(response.status === 200, "Response status is not 200")
+});
+ %}
+
+>>! dev/http_response/check_health.json
+
+###
+
+POST {{host}}/api/clipboard/
+
+> {%
+client.test("Test request status code", function (){
+    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+});
+client.global.set("clipboard_id", response.body["id"]);
+ %}
+
+>>! dev/http_response/create_clipboard.json
+
+###
+GET {{host}}/api/clipboard/{{clipboard_id}}/
+
+> {%
+client.test("Test request status code", function (){
+    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+});
+client.global.set("clipboard_id", response.body["id"]);
+ %}
+
+>>! dev/http_response/fetch_clipboard.json
+
+###
+GET {{host}}/api/clipboard/45c3da67-0000-0000-0000-b720db10694d/
+
+> {%
+client.test("Test request status code", function (){
+    client.assert(response.status===404, `Response status is not 404, but ${response.status}`)
+});
+ %}
+
+>>! dev/http_response/fetch_clipboard_not_found.json
+
+
+###
+
+POST {{host}}/api/clipboard/{{clipboard_id}}/item/?content=aaaaa
+
+> {%
+client.test("Test request status code", function (){
+    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+});
+client.global.set("clipitem_id", response.body["id"]);
+client.global.set("clipitem_preview", response.body["preview"]);
+ %}
+
+>>! dev/http_response/create_clipitem.json
+
+###
+
+GET {{host}}/api/clipboard/{{clipboard_id}}/item/{{clipitem_id}}
+
+> {%
+client.test("Test response correctness", function (){
+    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx");
+    const previewFromResponse=response.body["preview"];
+    const previewFromEnv=client.global.get("clipitem_preview");
+    client.assert(previewFromResponse==="aaaaa", `Response preview not correct, ${previewFromResponse}!=${previewFromEnv}`);
+});
+ %}
+
+>>! dev/http_response/fetch_clipitem.json
+
+###
+
+POST {{host}}/api/clipboard/{{clipboard_id}}/item/?content=bbbbb
+
+> {%
+client.test("Test request status code", function (){
+    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+});
+ %}
+
+>>! dev/http_response/create_clipitem_2.json
+
+###
+
+GET {{host}}/api/clipboard/{{clipboard_id}}/item/
+
+> {%
+client.test("Test request status code", function (){
+    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+});
+ %}
+
+>>! dev/http_response/fetch_all_clipitems.json
+
+###
+
+DELETE {{host}}/api/clipboard/{{clipboard_id}}/item/{{clipitem_id}}
+
+> {%
+client.test("Test request status code", function (){
+    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+});
+ %}
+
+>>! dev/http_response/delete_clipitem.json
+
+###
+
+DELETE {{host}}/api/clipboard/{{clipboard_id}}/
+
+> {%
+client.test("Test request status code", function (){
+    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+});
+ %}
+
+>>! dev/http_response/delete_clipboard.json
