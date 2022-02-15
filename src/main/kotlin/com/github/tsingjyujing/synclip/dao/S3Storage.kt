@@ -6,8 +6,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import kotlin.math.log
-
 
 @Component
 class S3Storage {
@@ -29,17 +27,6 @@ class S3Storage {
         amazonS3.putObject(bucketName, objectName, data)
     }
 
-    fun getText(bucketName: String, objectName: String) = String(
-        amazonS3.getObject(
-            bucketName,
-            objectName
-        ).objectContent.readAllBytes().takeIf { x ->
-            x != null
-        } ?: throw NullPointerException(
-            "Can't read data from $bucketName/$objectName"
-        )
-    )
-
     fun removeFile(bucketName: String, objectName: String) {
         amazonS3.deleteObject(bucketName, objectName)
     }
@@ -51,7 +38,7 @@ class S3Storage {
             if (l.isTruncated) {
                 l = amazonS3.listNextBatchOfObjects(l)
             } else {
-                break;
+                break
             }
         }
     }

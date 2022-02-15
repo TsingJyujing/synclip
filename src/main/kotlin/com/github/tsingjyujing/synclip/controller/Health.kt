@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RestController
 class Health {
 
     @GetMapping("/")
-    fun health() = ResponseEntity<Void>(HttpStatus.OK)
+    fun health() = ResponseEntity<Void>(HttpStatus.NO_CONTENT)
 
 }

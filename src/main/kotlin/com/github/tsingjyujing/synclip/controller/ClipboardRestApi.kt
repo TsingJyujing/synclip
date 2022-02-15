@@ -9,9 +9,11 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.InputStreamResource
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -83,6 +85,7 @@ class ClipboardRestApi {
             HttpStatus.NOT_FOUND, "Can't find clipboard item $itemId"
         )
         if (clipItem.clipboard.id != clipId) {
+            logger.warn("Requesting item $itemId with wrong clipid $clipId")
             throw ResponseStatusException(
                 HttpStatus.FORBIDDEN, "The item $itemId is not owned by $clipId"
             )
@@ -95,6 +98,19 @@ class ClipboardRestApi {
         @PathVariable clipId: String, @PathVariable itemId: String
     ) = getAndVerifyClipItem(clipId, itemId)
 
+    @GetMapping("/{clipId}/item/{itemId}/content")
+    fun getClipboardItemContent(
+        @PathVariable clipId: String, @PathVariable itemId: String
+    ): ResponseEntity<InputStreamResource> {
+        val streamRes = InputStreamResource(s3Storage.amazonS3.getObject(bucketName, "$clipId/$itemId").objectContent)
+        val httpHeaders = HttpHeaders()
+        httpHeaders.contentLength = s3Storage.amazonS3.getObjectMetadata(bucketName, "$clipId/$itemId").contentLength
+        return ResponseEntity<InputStreamResource>(
+            streamRes,
+            httpHeaders,
+            HttpStatus.OK
+        )
+    }
 
     // TODO add API to get item content
 
@@ -136,7 +152,7 @@ class ClipboardRestApi {
         clipItemRepository.deleteAllItemsByClipboardId(clipId)
         clipboardRepository.deleteById(clipId)
         s3Storage.removeDir(bucketName, "$clipId/")
-        return ResponseEntity<Void>(HttpStatus.OK)
+        return ResponseEntity<Void>(HttpStatus.NO_CONTENT)
     }
 
     @DeleteMapping("/{clipId}/item/{itemId}")
@@ -147,7 +163,7 @@ class ClipboardRestApi {
             getAndVerifyClipItem(clipId, itemId)
         )
         s3Storage.removeFile(bucketName, "$clipId/$itemId")
-        return ResponseEntity<Void>(HttpStatus.OK)
+        return ResponseEntity<Void>(HttpStatus.NO_CONTENT)
     }
 
 }

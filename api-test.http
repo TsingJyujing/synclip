@@ -3,7 +3,7 @@ GET {{host}}/api/health/
 
 > {%
 client.test("Test request status code", function (){
-    client.assert(response.status === 200, "Response status is not 200")
+     client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`)
 });
  %}
 
@@ -15,7 +15,7 @@ POST {{host}}/api/clipboard/
 
 > {%
 client.test("Test request status code", function (){
-    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+    client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`)
 });
 client.global.set("clipboard_id", response.body["id"]);
  %}
@@ -27,7 +27,7 @@ GET {{host}}/api/clipboard/{{clipboard_id}}/
 
 > {%
 client.test("Test request status code", function (){
-    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+    client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`)
 });
 client.global.set("clipboard_id", response.body["id"]);
  %}
@@ -52,7 +52,7 @@ POST {{host}}/api/clipboard/{{clipboard_id}}/item/?content=aaaaa
 
 > {%
 client.test("Test request status code", function (){
-    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+    client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`)
 });
 client.global.set("clipitem_id", response.body["id"]);
 client.global.set("clipitem_preview", response.body["preview"]);
@@ -66,7 +66,7 @@ GET {{host}}/api/clipboard/{{clipboard_id}}/item/{{clipitem_id}}
 
 > {%
 client.test("Test response correctness", function (){
-    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx");
+    client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`);
     const previewFromResponse=response.body["preview"];
     const previewFromEnv=client.global.get("clipitem_preview");
     client.assert(previewFromResponse==="aaaaa", `Response preview not correct, ${previewFromResponse}!=${previewFromEnv}`);
@@ -77,11 +77,24 @@ client.test("Test response correctness", function (){
 
 ###
 
+GET {{host}}/api/clipboard/{{clipboard_id}}/item/{{clipitem_id}}/content
+
+> {%
+client.test("Test response correctness", function (){
+    client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`);
+    client.assert(response.body==="aaaaa", `Response content not correct`);
+});
+ %}
+
+>>! dev/http_response/fetch_clipitem_content.json
+
+###
+
 POST {{host}}/api/clipboard/{{clipboard_id}}/item/?content=bbbbb
 
 > {%
 client.test("Test request status code", function (){
-    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+    client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`)
 });
  %}
 
@@ -93,7 +106,7 @@ GET {{host}}/api/clipboard/{{clipboard_id}}/item/
 
 > {%
 client.test("Test request status code", function (){
-    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+    client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`)
 });
  %}
 
@@ -105,7 +118,7 @@ DELETE {{host}}/api/clipboard/{{clipboard_id}}/item/{{clipitem_id}}
 
 > {%
 client.test("Test request status code", function (){
-    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+    client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`)
 });
  %}
 
@@ -117,7 +130,7 @@ DELETE {{host}}/api/clipboard/{{clipboard_id}}/
 
 > {%
 client.test("Test request status code", function (){
-    client.assert(response.status >= 200 && response.status < 300, "Response status is not 2xx")
+    client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`)
 });
  %}
 
