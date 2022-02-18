@@ -3,13 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import { QueryClient, QueryClientProvider } from "react-query";
 import reportWebVitals from './reportWebVitals';
-import {BrowserRouter, Route, Routes, useLocation} from "react-router-dom";
-import {CssBaseline, ThemeProvider} from '@material-ui/core';
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { CssBaseline, ThemeProvider } from '@material-ui/core';
 
-import AppBasic from "./AppBasic";
-import theme from "./theme";
-
-import Home from "./view/Home";
+import AppBasic from "AppBasic";
+import theme from "theme";
+import Home from "view/Home";
+import Clipboard from 'view/Clipboard';
 
 const queryClient = new QueryClient();
 
@@ -20,7 +20,7 @@ function NoMatch() {
       <h3>
         Location <code>{location.pathname}</code> not found
       </h3>
-      <a href={"/"}><h6>Home</h6></a>
+      <a href={"/"}><h6>Goto Home</h6></a>
     </div>
   );
 }
@@ -28,12 +28,13 @@ function NoMatch() {
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <CssBaseline/>
+      <CssBaseline />
       <QueryClientProvider client={queryClient}>
         <AppBasic>
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={ <Home/>} />
+              <Route path="/" element={<Home />} />
+              <Route path="/clipboard/:clipId" element={<Clipboard/>}/>
               <Route path="*" element={NoMatch} />
             </Routes>
           </BrowserRouter>
