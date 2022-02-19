@@ -3,6 +3,10 @@
         "welcome to use synclip": "Welcome to use synclip",
         "create new clipboard": "create new clipboard",
         "synclip introduction": "Welcome to use synclip, synclip is a network-synchronized clipboard application, allows you to sync-up between devices. It's a private & account-free clipboard, you don't need any account to use it.",
-        "source code": "Source Code"
+        "source code": "Source Code",
+        "failed to create clipboard":"Failed to create clipboard, please contact website admin.",
+        "failed to fetch items":"Failed to fetch contents from clipboard.",
+        "failed to delete item": "Failed to delete this item from clipboard",
+        "copied to clipboard": "Already copied this item to clipboard:"
     }
 }

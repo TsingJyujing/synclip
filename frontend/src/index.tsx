@@ -9,7 +9,7 @@ import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import AppBasic from "AppBasic";
 import theme from "theme";
 import Home from "view/Home";
-import Clipboard from 'view/Clipboard';
+import Clipboard from 'view/ClipboardPage';
 
 const queryClient = new QueryClient();
 
@@ -34,7 +34,7 @@ ReactDOM.render(
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/clipboard/:clipId" element={<Clipboard/>}/>
+              <Route path="/clipboard/:clipId" element={<Clipboard />} />
               <Route path="*" element={NoMatch} />
             </Routes>
           </BrowserRouter>

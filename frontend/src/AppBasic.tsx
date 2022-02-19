@@ -1,19 +1,18 @@
 import React from 'react';
-import {createStyles, makeStyles, Theme, useTheme} from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import Drawer from '@material-ui/core/Drawer';
 import Hidden from '@material-ui/core/Hidden';
-import {Divider, List, ListItem, ListItemIcon, ListItemText} from "@material-ui/core";
+import { Container, Divider, List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import clsx from 'clsx';
-
-import AddBoxIcon from '@mui/icons-material/AddBox';
 import MenuIcon from '@mui/icons-material/Menu';
 import GitHubIcon from '@mui/icons-material/GitHub';
 
 import i18n from 'i18n';
+import CreateClipboardButton from 'component/CreateClipboardButton';
 
 const drawerWidth = 240;
 const useStyles = makeStyles((theme: Theme) =>
@@ -79,7 +78,7 @@ type Props = {
     children?: JSX.Element;
 };
 
-export default function AppBasic({children}: Props) {
+export default function AppBasic({ children }: Props) {
     const { t } = i18n;
     const classes = useStyles();
     const theme = useTheme();
@@ -91,24 +90,23 @@ export default function AppBasic({children}: Props) {
 
     const drawer = (
         <div>
-            <div className={classes.toolbar}/>
-            <Divider/>
+            <div className={classes.toolbar} />
+            <Divider />
             <List>
-                <ListItem button key="create-new-dashboard" component="a" href="/ui/clipboard/new/">
-                    <ListItemIcon><AddBoxIcon/></ListItemIcon>
-                    <ListItemText primary={t("create new clipboard")}/>
+                <ListItem>
+                    <CreateClipboardButton />
                 </ListItem>
             </List>
-            <Divider/>
+            <Divider />
             <List>
                 <ListItem button
-                          key="source-code"
-                          component="a"
-                          href="https://github.com/TsingJyujing/synclip"
-                          target="_blank"
+                    key="source-code"
+                    component="a"
+                    href="https://github.com/TsingJyujing/synclip"
+                    target="_blank"
                 >
-                    <ListItemIcon><GitHubIcon/></ListItemIcon>
-                    <ListItemText primary={t("source code")}/>
+                    <ListItemIcon><GitHubIcon /></ListItemIcon>
+                    <ListItemText primary={t("source code")} />
                 </ListItem>
             </List>
         </div>
@@ -121,8 +119,8 @@ export default function AppBasic({children}: Props) {
             })}>
                 <Toolbar>
                     <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu"
-                                onClick={handleDrawerToggle}>
-                        <MenuIcon/>
+                        onClick={handleDrawerToggle}>
+                        <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" className={classes.title}>
                         Synclip
@@ -151,8 +149,10 @@ export default function AppBasic({children}: Props) {
             <main className={clsx(classes.content, {
                 [classes.contentShift]: drawerOpen,
             })}>
-                <div className={classes.drawerHeader}/>
-                {children}
+                <Container>
+                <div className={classes.drawerHeader} />
+                    {children}
+                </Container>
             </main>
         </div>
     );

@@ -1,11 +1,10 @@
 import React from "react";
-import Button from '@mui/material/Button';
-import AddIcon from '@mui/icons-material/Add';
 import Typography from '@mui/material/Typography';
 import { Helmet } from "react-helmet";
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import i18n from 'i18n';
+import CreateClipboardButton from "component/CreateClipboardButton";
 
 
 export default function Home() {
@@ -18,9 +17,7 @@ export default function Home() {
                     <Typography variant="h2">{t("welcome to use synclip")}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                    <Button variant="contained" endIcon={<AddIcon />}>
-                        {t('create new clipboard')}
-                    </Button>
+                    <CreateClipboardButton />
                 </Grid>
                 <Grid item xs={12}>
                     <Typography variant="h6">{t("synclip introduction")}</Typography>
