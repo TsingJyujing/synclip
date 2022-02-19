@@ -90,7 +90,7 @@ client.test("Test response correctness", function (){
 
 ###
 
-POST {{host}}/api/clipboard/{{clipboard_id}}/item/?content=bbbbb
+POST {{host}}/api/clipboard/{{clipboard_id}}/item/?content=bbbbbdhadkjhalskdhlaksjhd
 
 > {%
 client.test("Test request status code", function (){

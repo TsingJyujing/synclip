@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.InputStreamResource
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
@@ -66,6 +67,9 @@ class ClipboardRestApi {
             HttpStatus.NOT_FOUND, "Can't find clipboard $clipId"
         )
 
+
+    data class ClipboardItemsResponse(val content: List<ClipItem>, val totalPages: Int)
+
     /**
      * List items in clipboard
      */
@@ -74,9 +78,15 @@ class ClipboardRestApi {
         @RequestParam(value = "size", defaultValue = "100") size: Int,
         @RequestParam(value = "page", defaultValue = "0") page: Int,
         @PathVariable clipId: String
-    ) = clipItemRepository.findAllByClipboardId(
-        clipId, PageRequest.of(page, size, Sort.by("created").descending())
-    )
+    ): ClipboardItemsResponse {
+        val result: Page<ClipItem> = clipItemRepository.findAllByClipboardId(
+            clipId, PageRequest.of(page, size, Sort.by("created").descending())
+        )
+        return ClipboardItemsResponse(
+            content = result.content,
+            totalPages = result.totalPages,
+        )
+    }
 
     fun getAndVerifyClipItem(clipId: String, itemId: String): ClipItem {
         val clipItem: ClipItem = clipItemRepository.findByIdOrNull(itemId).takeIf { i ->
@@ -111,9 +121,6 @@ class ClipboardRestApi {
             HttpStatus.OK
         )
     }
-
-    // TODO add API to get item content
-
 
     /**
      * Create a new clipboard item
