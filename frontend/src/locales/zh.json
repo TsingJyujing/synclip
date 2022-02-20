@@ -1,12 +1,17 @@
 {
-    "translation":{
+    "translation": {
         "welcome to use synclip": "欢迎使用Synclip",
         "create new clipboard": "创建新的剪切板",
         "synclip introduction": "欢迎使用Synclip，这是一款网络同步的剪切板应用，可以让你在不同的设备之间同步。 并且本应用是私密且无账号的，您不需要创建账号即可使用。",
         "source code": "源代码",
-        "failed to create clipboard":"创建剪切板失败，请联系网站管理员。",
-        "failed to fetch items":"获取剪切板内容失败。",
+        "failed to create clipboard": "创建剪切板失败，请联系网站管理员。",
+        "failed to fetch items": "获取剪切板内容失败。",
         "failed to delete item": "删除剪切板内容失败",
-        "copied to clipboard": "已经拷贝到剪切板："
+        "copied to clipboard": "已经拷贝到剪切板：",
+        "create clipboard item": "创建剪切板条目",
+        "sava": "保存",
+        "text to create": "需要创建的文本",
+        "create item successfully": "成功创建条目：",
+        "failed to create item": "失败！无法创建条目："
     }
 }

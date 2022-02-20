@@ -1,5 +1,6 @@
 import { BACKEND_API_ENDPOINT } from "Config";
 import AbstractHttpClient from "http/AbstractHttpClient";
+import qs from 'qs';
 
 export type Clipboard = {
     id: string;
@@ -41,6 +42,10 @@ class V1Api extends AbstractHttpClient {
         `/api/clipboard/${clipId}/item/${itemId}`
     );
 
+    public createClipBoardItem = (clipId: string) => async (content:string) => await this.instance.post<ClipItem>(
+        `/api/clipboard/${clipId}/item/`,
+        qs.stringify({content})
+    )
 }
 
 export default V1Api;

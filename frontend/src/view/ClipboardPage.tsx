@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import Grid from '@mui/material/Grid';
 import { useMutation, useQuery } from "react-query";
 import V1Api, { ClipItem, ListClipItems } from "http/V1Api";
-import { AlertColor, IconButton, LinearProgress } from "@mui/material";
+import { AlertColor, Box, IconButton, LinearProgress } from "@mui/material";
 import { Alert, AlertSnackbar } from "component/Alert";
 import { PaginatorWithCombo } from "component/Paginator";
 
@@ -17,7 +17,10 @@ import Avatar from '@mui/material/Avatar';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import copy from 'copy-to-clipboard';
+import clipboard from 'clipboardy';
+
+import CreateClipboardItemButton from "component/CreateClipboardItemButton";
+import { Helmet } from "react-helmet";
 
 type ClipItemBoxProp = {
     clipId: string;
@@ -35,10 +38,10 @@ function ClipItemBox({ clipId, item, reloadList }: ClipItemBoxProp) {
         V1Api.getInstance().deleteClipboardItem(clipId, item.id),
         {
             onSuccess: () => reloadList(),
-            onError: () => {
+            onError: (error) => {
                 deleteItemMutation.reset();
                 setSeverity("error");
-                setAlertText(t("failed to delete item"));// TODO translate + more detail
+                setAlertText(t("failed to delete item") + JSON.stringify(error));
                 setOpen(true);
             }
         }
@@ -47,12 +50,13 @@ function ClipItemBox({ clipId, item, reloadList }: ClipItemBoxProp) {
     const getContentMutation = useMutation(
         V1Api.getInstance().getClipboardItemContent(clipId, item.id),
         {
-            onSuccess: (data) => {
-                copy(data);
-                setSeverity("info");
-                setAlertText(t("copied to clipboard") + item.preview);
-                setOpen(true);
-            },
+            onSuccess: (data) => clipboard.write(data).then(
+                () => {
+                    setSeverity("info");
+                    setAlertText(t("copied to clipboard") + item.preview);
+                    setOpen(true);
+                }
+            ),
             onError: () => {
                 getContentMutation.reset();
                 setSeverity("error");
@@ -121,6 +125,9 @@ function ClipItemsList({ clipId }: ClipItemsListProps) {
     return (
         <Grid container>
             <Grid item xs={12}>
+                <CreateClipboardItemButton clipId={clipId} reloadList={disableCache} />
+            </Grid>
+            <Grid item xs={12}>
                 <List>
                     {data.content.map((item) => (
                         <ClipItemBox
@@ -137,7 +144,6 @@ function ClipItemsList({ clipId }: ClipItemsListProps) {
             </Grid>
         </Grid>
     );
-
 }
 
 export default function ClipboardPage() {
@@ -145,5 +151,8 @@ export default function ClipboardPage() {
     if (clipId === undefined) {
         return <Alert severity={"error"} sx={{ width: '100%' }} />;
     }
-    return <ClipItemsList clipId={clipId}></ClipItemsList>
+    return <Box>
+        <Helmet><title>Synclip</title></Helmet>
+        <ClipItemsList clipId={clipId}></ClipItemsList>
+    </Box>
 }

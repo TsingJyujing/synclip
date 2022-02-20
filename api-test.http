@@ -48,7 +48,10 @@ client.test("Test request status code", function (){
 
 ###
 
-POST {{host}}/api/clipboard/{{clipboard_id}}/item/?content=aaaaa
+POST {{host}}/api/clipboard/{{clipboard_id}}/item/
+Content-Type: application/x-www-form-urlencoded
+
+content=aaaaa
 
 > {%
 client.test("Test request status code", function (){
@@ -90,7 +93,10 @@ client.test("Test response correctness", function (){
 
 ###
 
-POST {{host}}/api/clipboard/{{clipboard_id}}/item/?content=bbbbbdhadkjhalskdhlaksjhd
+POST {{host}}/api/clipboard/{{clipboard_id}}/item/
+Content-Type: application/x-www-form-urlencoded
+
+content=bbbbbdhadkjhalskdhlaksjhd
 
 > {%
 client.test("Test request status code", function (){
