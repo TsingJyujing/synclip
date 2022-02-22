@@ -13,9 +13,9 @@
         "text to create": "Text to create",
         "create item successfully": "Create item successfully:",
         "failed to create item": "Failed to create item:",
-        "name modified successfully": "Name modified successfully:",
-        "failed to modify name": "Failed to modify name",
-        "modify nickname": "Modify nickname",
+        "name modified successfully": "Clipboard nickname modified successfully:",
+        "failed to modify name": "Failed to modify clipboard nickname",
+        "modify nickname": "Modify clipboard nickname",
         "nickname": "Nickname"
     }
 }

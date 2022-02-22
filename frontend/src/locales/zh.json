@@ -13,9 +13,9 @@
         "text to create": "需要创建的文本",
         "create item successfully": "成功创建条目：",
         "failed to create item": "失败！无法创建条目：",
-        "name modified successfully": "昵称已成功修改:",
-        "failed to modify name": "修改昵称失败：",
-        "modify nickname": "修改昵称",
-        "nickname": "昵称"
+        "name modified successfully": "剪切板昵称已成功修改:",
+        "failed to modify name": "修改剪切板昵称失败：",
+        "modify nickname": "修改剪切板昵称",
+        "nickname": "剪切板昵称"
     }
 }
