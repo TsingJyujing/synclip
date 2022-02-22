@@ -24,6 +24,8 @@ open class Clipboard {
     open var id: String? = null
         protected set
 
+    open var nickName: String = ""
+
     open lateinit var created: Date
 
     @PrePersist

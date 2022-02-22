@@ -23,16 +23,32 @@ client.global.set("clipboard_id", response.body["id"]);
 >>! dev/http_response/create_clipboard.json
 
 ###
-GET {{host}}/api/clipboard/{{clipboard_id}}/
+PATCH {{host}}/api/clipboard/{{clipboard_id}}/
+Content-Type: application/x-www-form-urlencoded
+
+nickName=asdfg
 
 > {%
 client.test("Test request status code", function (){
     client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`)
 });
+ %}
+
+>>! dev/http_response/patch_clipboard.json
+
+###
+GET {{host}}/api/clipboard/{{clipboard_id}}/
+
+> {%
+client.test("Test request status code", function (){
+    client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`)
+    client.assert(response.body["nickName"]==="asdfg", "Nickname not correct")
+});
 client.global.set("clipboard_id", response.body["id"]);
  %}
 
 >>! dev/http_response/fetch_clipboard.json
+
 
 ###
 GET {{host}}/api/clipboard/45c3da67-0000-0000-0000-b720db10694d/
@@ -48,7 +64,7 @@ client.test("Test request status code", function (){
 
 ###
 
-POST {{host}}/api/clipboard/{{clipboard_id}}/item/
+PUT {{host}}/api/clipboard/{{clipboard_id}}/item/
 Content-Type: application/x-www-form-urlencoded
 
 content=aaaaa
@@ -93,7 +109,7 @@ client.test("Test response correctness", function (){
 
 ###
 
-POST {{host}}/api/clipboard/{{clipboard_id}}/item/
+PUT {{host}}/api/clipboard/{{clipboard_id}}/item/
 Content-Type: application/x-www-form-urlencoded
 
 content=bbbbbdhadkjhalskdhlaksjhd

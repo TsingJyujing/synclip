@@ -67,7 +67,29 @@ class ClipboardRestApi {
             HttpStatus.NOT_FOUND, "Can't find clipboard $clipId"
         )
 
-
+    /**
+     * Create a new clipboard
+     */
+    @PatchMapping("/{clipId}")
+    fun modifyClipboard(
+        @PathVariable clipId: String,
+        @RequestParam(value = "nickName") nickName: String?,
+    ): Clipboard {
+        val clipboard = clipboardRepository.findByIdOrNull(clipId).takeIf { c ->
+            c != null
+        } ?: throw ResponseStatusException(
+            HttpStatus.NOT_FOUND, "Can't find clipboard $clipId"
+        )
+        var needUpdate = false
+        if (nickName!=null){
+            clipboard.nickName = nickName
+            needUpdate = true
+        }
+        if (needUpdate) {
+            clipboardRepository.save(clipboard)
+        }
+        return clipboard
+    }
     data class ClipboardItemsResponse(val content: List<ClipItem>, val totalPages: Int)
 
     /**
@@ -88,7 +110,7 @@ class ClipboardRestApi {
         )
     }
 
-    fun getAndVerifyClipItem(clipId: String, itemId: String): ClipItem {
+    private fun getAndVerifyClipItem(clipId: String, itemId: String): ClipItem {
         val clipItem: ClipItem = clipItemRepository.findByIdOrNull(itemId).takeIf { i ->
             i != null
         } ?: throw ResponseStatusException(
@@ -103,11 +125,17 @@ class ClipboardRestApi {
         return clipItem
     }
 
+    /**
+     * Get basic information of clipboard item
+     */
     @GetMapping("/{clipId}/item/{itemId}")
     fun getClipboardItem(
         @PathVariable clipId: String, @PathVariable itemId: String
     ) = getAndVerifyClipItem(clipId, itemId)
 
+    /**
+     * Get full binary content from clipboard item
+     */
     @GetMapping("/{clipId}/item/{itemId}/content")
     fun getClipboardItemContent(
         @PathVariable clipId: String, @PathVariable itemId: String
@@ -125,7 +153,7 @@ class ClipboardRestApi {
     /**
      * Create a new clipboard item
      */
-    @PostMapping("/{clipId}/item/")
+    @PutMapping("/{clipId}/item/")
     fun createNewClipboardItem(
         @PathVariable clipId: String, @RequestParam(value = "content") content: String
     ): ClipItem {
