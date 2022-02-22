@@ -7,15 +7,16 @@
         "failed to create clipboard": "Failed to create clipboard, please contact website admin.",
         "failed to fetch items": "Failed to fetch contents from clipboard.",
         "failed to delete item": "Failed to delete this item from clipboard",
-        "copied to clipboard": "Already copied this item to clipboard:",
+        "copied to clipboard": "Already copied this item to clipboard: ",
         "create clipboard item": "Create clipboard item",
         "save": "Save",
         "text to create": "Text to create",
-        "create item successfully": "Create item successfully:",
-        "failed to create item": "Failed to create item:",
-        "name modified successfully": "Clipboard nickname modified successfully:",
+        "create item successfully": "Create item successfully: ",
+        "failed to create item": "Failed to create item: ",
+        "name modified successfully": "Clipboard nickname modified successfully: ",
         "failed to modify name": "Failed to modify clipboard nickname",
         "modify nickname": "Modify clipboard nickname",
-        "nickname": "Nickname"
+        "nickname": "Nickname",
+        "delete item":"Are you sure to delete item: "
     }
 }

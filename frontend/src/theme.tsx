@@ -1,9 +1,9 @@
-import { createTheme } from '@material-ui/core/styles';
+import { createTheme } from "@mui/material";
 
 // A custom theme for this app
 const theme = createTheme({
     palette: {
-        type: 'dark',
+        mode: "dark",
         primary: {
             main: "#CCCCFF"
         }

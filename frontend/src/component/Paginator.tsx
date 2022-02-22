@@ -34,7 +34,14 @@ export function PaginatorWithCombo({ pageId, setPageId, pageCount }: PaginatorWi
     return (
         <Grid container spacing={3}>
             <Grid item xs={4}>
-                <Button variant="contained" disabled={pageId <= 1} fullWidth onClick={handlePreviousPage}>
+                <Button
+                    variant="contained"
+                    disabled={pageId <= 1}
+                    fullWidth
+                    onClick={handlePreviousPage}
+                    size="large"
+                    color="primary"
+                >
                     <NavigateBeforeIcon />
                 </Button>
             </Grid>
@@ -42,6 +49,7 @@ export function PaginatorWithCombo({ pageId, setPageId, pageCount }: PaginatorWi
                 <Select
                     id="select-page-id"
                     value={pageId}
+                    variant="standard"
                     onChange={handleChangePageId}
                     fullWidth
                 >
@@ -56,8 +64,14 @@ export function PaginatorWithCombo({ pageId, setPageId, pageCount }: PaginatorWi
                 </Select>
             </Grid>
             <Grid item xs={4}>
-                <Button variant="contained" disabled={pageId <= 1} fullWidth
-                    onClick={handleNextPage}>
+                <Button
+                    variant="contained"
+                    disabled={pageId >= pageCount}
+                    fullWidth
+                    size="large"
+                    color="primary"
+                    onClick={handleNextPage}
+                >
                     <NavigateNextIcon />
                 </Button>
             </Grid>

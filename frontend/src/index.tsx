@@ -4,12 +4,12 @@ import './index.css';
 import { QueryClient, QueryClientProvider } from "react-query";
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
-import { CssBaseline, ThemeProvider } from '@material-ui/core';
 
 import AppBasic from "AppBasic";
 import theme from "theme";
 import Home from "view/Home";
 import Clipboard from 'view/ClipboardPage';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 
 const queryClient = new QueryClient();
 

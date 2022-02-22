@@ -11,7 +11,6 @@ import { AlertSnackbar } from "component/Alert";
 export default function CreateClipboardButton() {
     const { t } = i18n;
     const [notifyFailed, setNotifyFailed] = React.useState(false);
-    const [clipboardName, setClipboardName] = React.useState("Laplace");
 
     const createClipBoardMutation = useMutation(V1Api.getInstance().createClipBoard, {
         onSuccess: (data) => {

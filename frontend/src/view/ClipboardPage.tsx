@@ -21,7 +21,7 @@ import clipboard from 'clipboardy';
 
 import CreateClipboardItemButton from "component/CreateClipboardItemButton";
 import { Helmet } from "react-helmet";
-import RenameClipboard from "component/RenameClipboard";
+import EditClipboard from "component/EditClipboard";
 
 type ClipItemBoxProp = {
     clipId: string;
@@ -69,15 +69,19 @@ function ClipItemBox({ clipId, item, reloadList }: ClipItemBoxProp) {
 
     return <ListItem
         secondaryAction={
-            <IconButton edge="end" aria-label="delete" onClick={() => deleteItemMutation.mutate()}>
-                <DeleteIcon />
+            <IconButton edge="end" aria-label="delete" onClick={() => {
+                if (window.confirm(`${t("delete item")} ${item.preview}`)) {
+                    deleteItemMutation.mutate()
+                }
+            }}>
+                <DeleteIcon color="error" />
             </IconButton>
         }
     >
         <ListItemAvatar >
             <ListItemButton onClick={() => getContentMutation.mutate()}>
                 <Avatar>
-                    <ContentCopyIcon />
+                    <ContentCopyIcon color="success" />
                 </Avatar>
             </ListItemButton>
         </ListItemAvatar>
@@ -86,7 +90,7 @@ function ClipItemBox({ clipId, item, reloadList }: ClipItemBoxProp) {
         <ListItemButton onClick={() => getContentMutation.mutate()} >
             <ListItemText
                 primary={item.preview}
-                secondary={item.created}
+                secondary={item.created}//TODO using format like several minutes ago/few days ago...
             />
         </ListItemButton>
 
@@ -109,10 +113,10 @@ function ClipItemsList({ clipId }: ClipItemsListProps) {
     const { t } = i18n;
     const [pageId, setPageId] = useState(1);
     const [cacheId, setCacheId] = useState(1);
-    const pageSize = 100;
+    const pageSize = 50;
     const { isLoading, isError, data, error } = useQuery<ListClipItems>(
         [clipId, pageId, pageSize, cacheId],
-        V1Api.getInstance().getClipboardItems(clipId)
+        V1Api.getInstance().getClipboardItems(clipId, pageId, pageSize)
     );
     const disableCache = () => { setCacheId(cacheId + 1) };
     if (isLoading) {
@@ -124,9 +128,9 @@ function ClipItemsList({ clipId }: ClipItemsListProps) {
     }
     const pageCount = Math.max(data.totalPages, 1);
     return (
-        <Grid container spacing={2}>
+        <Grid container spacing={1}>
             <Grid item xs={12}>
-                <RenameClipboard clipId={clipId}></RenameClipboard>
+                <EditClipboard clipId={clipId}></EditClipboard>
             </Grid>
             <Grid item xs={12}>
                 <CreateClipboardItemButton clipId={clipId} reloadList={disableCache} />

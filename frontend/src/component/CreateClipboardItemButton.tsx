@@ -26,20 +26,33 @@ export default function CreateClipboardItemButton({ clipId, reloadList }: Create
     const [severity, setSeverity] = useState<AlertColor>("error");
     const [alertText, setAlertText] = useState("");
     const [value, setValue] = React.useState("");
+    const [file, setFile] = React.useState<File>();
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setValue(event.target.value);
     };
 
     const processPasteEvent = (ev: ClipboardEvent) => {
-        const text = ev.clipboardData?.getData("text");
-        if (text !== undefined) {
-            if (!open){
-                setValue(text);
+        const text = ev.clipboardData?.getData("text/plain");
+        if (text !== undefined && text !== "") {
+            if (!open) {
                 setOpen(true);
+                setValue(text);
+            }
+        } else {
+            const items = ev.clipboardData?.items;
+            if (items !== undefined) {
+                for (let i = 0; i < items?.length; i++) {
+                    const item = items[i];
+                    if (item.type.indexOf("image") !== -1) {
+                        const file = item.getAsFile();
+                        // TODO handle the file
+                        break;
+                    }
+                }
             }
         }
     };
-    
+
     React.useEffect(() => {
         document.addEventListener("paste", processPasteEvent)
     }, []);
@@ -49,7 +62,7 @@ export default function CreateClipboardItemButton({ clipId, reloadList }: Create
         {
             onSuccess: (data) => {
                 setSeverity("info");
-                setAlertText(t("create item successfully") +  data.preview);
+                setAlertText(t("create item successfully") + data.preview);
                 setOpenAlert(true);
                 setOpen(false);
                 reloadList();
@@ -97,7 +110,6 @@ export default function CreateClipboardItemButton({ clipId, reloadList }: Create
                     <LoadingButton
                         onClick={() => createItemMutation.mutate(value)}
                         loading={createItemMutation.isLoading}
-                        loadingPosition="end"
                         variant="contained"
                     >
                         {t("save")}

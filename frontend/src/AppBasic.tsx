@@ -1,18 +1,12 @@
 import React from 'react';
-import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
-import { Container, Divider, List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
+import { Container, Divider, List, ListItem, ListItemIcon, ListItemText, Hidden, IconButton, Drawer, Typography, Toolbar, AppBar } from "@mui/material";
 import clsx from 'clsx';
 import MenuIcon from '@mui/icons-material/Menu';
 import GitHubIcon from '@mui/icons-material/GitHub';
 
 import i18n from 'i18n';
 import CreateClipboardButton from 'component/CreateClipboardButton';
+import { makeStyles, createStyles, useTheme, Theme } from '@material-ui/core/styles';
 
 const drawerWidth = 240;
 const useStyles = makeStyles((theme: Theme) =>
@@ -74,6 +68,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
     }),
 );
+
 type Props = {
     children?: JSX.Element;
 };
@@ -150,7 +145,7 @@ export default function AppBasic({ children }: Props) {
                 [classes.contentShift]: drawerOpen,
             })}>
                 <Container>
-                <div className={classes.drawerHeader} />
+                    <div className={classes.drawerHeader} />
                     {children}
                 </Container>
             </main>

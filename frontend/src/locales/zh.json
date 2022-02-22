@@ -16,6 +16,7 @@
         "name modified successfully": "剪切板昵称已成功修改:",
         "failed to modify name": "修改剪切板昵称失败：",
         "modify nickname": "修改剪切板昵称",
-        "nickname": "剪切板昵称"
+        "nickname": "剪切板昵称",
+        "delete item":"是否删除条目： "
     }
 }

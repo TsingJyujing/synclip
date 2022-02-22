@@ -31,8 +31,8 @@ class V1Api extends AbstractHttpClient {
 
     public createClipBoard = async () => await this.instance.post<Clipboard>("/api/clipboard/");
 
-    public getClipboardItems = (clipId: string) => async () => await this.instance.get<ListClipItems>(
-        `/api/clipboard/${clipId}/item/`
+    public getClipboardItems = (clipId: string, pageId: number, pageSize: number) => async () => await this.instance.get<ListClipItems>(
+        `/api/clipboard/${clipId}/item/?${qs.stringify({ page: pageId - 1, size: pageSize })}`
     );
 
     public getClipboardItemContent = (clipId: string, itemId: string) => async () => await this.instance.get<string>(
