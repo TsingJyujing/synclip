@@ -4,6 +4,7 @@ import qs from 'qs';
 
 export type Clipboard = {
     id: string;
+    nickName: string;
     created: string;
 };
 
@@ -42,10 +43,11 @@ class V1Api extends AbstractHttpClient {
         `/api/clipboard/${clipId}/item/${itemId}`
     );
 
-    public createClipBoardItem = (clipId: string) => async (content:string) => await this.instance.post<ClipItem>(
+    public createClipBoardItem = (clipId: string) => async (content: string) => await this.instance.put<ClipItem>(
         `/api/clipboard/${clipId}/item/`,
-        qs.stringify({content})
+        qs.stringify({ content })
     )
+
 }
 
 export default V1Api;
