@@ -21,6 +21,7 @@ import clipboard from 'clipboardy';
 
 import CreateClipboardItemButton from "component/CreateClipboardItemButton";
 import { Helmet } from "react-helmet";
+import RenameClipboard from "component/RenameClipboard";
 
 type ClipItemBoxProp = {
     clipId: string;
@@ -123,7 +124,10 @@ function ClipItemsList({ clipId }: ClipItemsListProps) {
     }
     const pageCount = Math.max(data.totalPages, 1);
     return (
-        <Grid container>
+        <Grid container spacing={2}>
+            <Grid item xs={12}>
+                <RenameClipboard clipId={clipId}></RenameClipboard>
+            </Grid>
             <Grid item xs={12}>
                 <CreateClipboardItemButton clipId={clipId} reloadList={disableCache} />
             </Grid>

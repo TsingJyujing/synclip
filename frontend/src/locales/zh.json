@@ -9,9 +9,13 @@
         "failed to delete item": "删除剪切板内容失败",
         "copied to clipboard": "已经拷贝到剪切板：",
         "create clipboard item": "创建剪切板条目",
-        "sava": "保存",
+        "save": "保存",
         "text to create": "需要创建的文本",
         "create item successfully": "成功创建条目：",
-        "failed to create item": "失败！无法创建条目："
+        "failed to create item": "失败！无法创建条目：",
+        "name modified successfully": "昵称已成功修改:",
+        "failed to modify name": "修改昵称失败：",
+        "modify nickname": "修改昵称",
+        "nickname": "昵称"
     }
 }

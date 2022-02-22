@@ -100,7 +100,7 @@ export default function CreateClipboardItemButton({ clipId, reloadList }: Create
                         loadingPosition="end"
                         variant="contained"
                     >
-                        {t("sava")}
+                        {t("save")}
                     </LoadingButton>
                 </DialogActions>
             </Dialog>

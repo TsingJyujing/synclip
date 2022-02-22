@@ -46,7 +46,15 @@ class V1Api extends AbstractHttpClient {
     public createClipBoardItem = (clipId: string) => async (content: string) => await this.instance.put<ClipItem>(
         `/api/clipboard/${clipId}/item/`,
         qs.stringify({ content })
-    )
+    );
+
+    public setClipBoardNickName = (clipId: string) => async (nickName: string) => await this.instance.patch<Clipboard>(
+        `/api/clipboard/${clipId}/`,
+        qs.stringify({ nickName })
+    );
+
+    public getClipboard = (clipId: string) => async () => await this.instance.get<Clipboard>(`/api/clipboard/${clipId}/`);
+
 
 }
 

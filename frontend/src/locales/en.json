@@ -9,9 +9,13 @@
         "failed to delete item": "Failed to delete this item from clipboard",
         "copied to clipboard": "Already copied this item to clipboard:",
         "create clipboard item": "Create clipboard item",
-        "sava": "Save",
+        "save": "Save",
         "text to create": "Text to create",
         "create item successfully": "Create item successfully:",
-        "failed to create item": "Failed to create item:"
+        "failed to create item": "Failed to create item:",
+        "name modified successfully": "Name modified successfully:",
+        "failed to modify name": "Failed to modify name",
+        "modify nickname": "Modify nickname",
+        "nickname": "Nickname"
     }
 }
