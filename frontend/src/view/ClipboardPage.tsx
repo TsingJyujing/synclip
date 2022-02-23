@@ -27,9 +27,10 @@ type ClipItemBoxProp = {
     clipId: string;
     item: ClipItem;
     reloadList: CallableFunction;
+    deleteAfterConfirmation: boolean;
 };
 
-function ClipItemBox({ clipId, item, reloadList }: ClipItemBoxProp) {
+function ClipItemBox({ clipId, item, reloadList, deleteAfterConfirmation }: ClipItemBoxProp) {
     const { t } = i18n;
     const [open, setOpen] = useState(false);
     const [severity, setSeverity] = useState<AlertColor>("error");
@@ -38,7 +39,9 @@ function ClipItemBox({ clipId, item, reloadList }: ClipItemBoxProp) {
     const deleteItemMutation = useMutation(
         V1Api.getInstance().deleteClipboardItem(clipId, item.id),
         {
-            onSuccess: () => reloadList(),
+            onSuccess: () => {
+                reloadList();
+            },
             onError: (error) => {
                 deleteItemMutation.reset();
                 setSeverity("error");
@@ -70,7 +73,7 @@ function ClipItemBox({ clipId, item, reloadList }: ClipItemBoxProp) {
     return <ListItem
         secondaryAction={
             <IconButton edge="end" aria-label="delete" onClick={() => {
-                if (window.confirm(`${t("delete item")} ${item.preview}`)) {
+                if (!deleteAfterConfirmation || window.confirm(`${t("delete item")} ${item.preview}`)) {
                     deleteItemMutation.mutate()
                 }
             }}>
@@ -107,18 +110,19 @@ function ClipItemBox({ clipId, item, reloadList }: ClipItemBoxProp) {
 
 type ClipItemsListProps = {
     clipId: string;
+    deleteAfterConfirmation: boolean;
+    cacheId: number;
+    reloadList: CallableFunction;
 };
 
-function ClipItemsList({ clipId }: ClipItemsListProps) {
+function ClipItemsList({ clipId, deleteAfterConfirmation, cacheId, reloadList }: ClipItemsListProps) {
     const { t } = i18n;
     const [pageId, setPageId] = useState(1);
-    const [cacheId, setCacheId] = useState(1);
     const pageSize = 50;
     const { isLoading, isError, data, error } = useQuery<ListClipItems>(
         [clipId, pageId, pageSize, cacheId],
         V1Api.getInstance().getClipboardItems(clipId, pageId, pageSize)
     );
-    const disableCache = () => { setCacheId(cacheId + 1) };
     if (isLoading) {
         return <LinearProgress />;
     }
@@ -130,18 +134,13 @@ function ClipItemsList({ clipId }: ClipItemsListProps) {
     return (
         <Grid container spacing={1}>
             <Grid item xs={12}>
-                <EditClipboard clipId={clipId}></EditClipboard>
-            </Grid>
-            <Grid item xs={12}>
-                <CreateClipboardItemButton clipId={clipId} reloadList={disableCache} />
-            </Grid>
-            <Grid item xs={12}>
                 <List>
                     {data.content.map((item) => (
                         <ClipItemBox
                             clipId={clipId}
                             item={item}
-                            reloadList={disableCache}
+                            reloadList={reloadList}
+                            deleteAfterConfirmation={deleteAfterConfirmation}
                             key={`${clipId}/${item.id}`}
                         />
                     ))}
@@ -156,11 +155,37 @@ function ClipItemsList({ clipId }: ClipItemsListProps) {
 
 export default function ClipboardPage() {
     const { clipId } = useParams<{ clipId: string }>();
+    const [cacheId, setCacheId] = useState(1);
+    const disableCache = () => { setCacheId(cacheId + 1) };
+    const [deleteAfterConfirmation, setDeleteAfterConfirmation] = useState(true);
+    const [createByShortcut, setCreateByShortcut] = useState(true);
     if (clipId === undefined) {
         return <Alert severity={"error"} sx={{ width: '100%' }} />;
     }
-    return <Box>
+    return <Grid container spacing={1}>
         <Helmet><title>Synclip</title></Helmet>
-        <ClipItemsList clipId={clipId}></ClipItemsList>
-    </Box>
+        <Grid item xs={12}>
+            <EditClipboard
+                clipId={clipId}
+                setCreateByShortcut={setCreateByShortcut}
+                setDeleteAfterConfirmation={setDeleteAfterConfirmation}
+            />
+        </Grid>
+        <Grid item xs={12}>
+            <CreateClipboardItemButton
+                key="create-clipboard-item"
+                clipId={clipId}
+                reloadList={disableCache}
+                createByShortcut={createByShortcut}
+            />
+        </Grid>
+        <Grid item xs={12}>
+            <ClipItemsList
+                clipId={clipId}
+                deleteAfterConfirmation={deleteAfterConfirmation}
+                cacheId={cacheId}
+                reloadList={disableCache}
+            />
+        </Grid>
+    </Grid>
 }

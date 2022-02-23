@@ -6,6 +6,8 @@ export type Clipboard = {
     id: string;
     nickName: string;
     created: string;
+    deleteAfterConfirmation: boolean;
+    createByShortcut: boolean;
 };
 
 export type ClipItem = {
@@ -48,9 +50,13 @@ class V1Api extends AbstractHttpClient {
         qs.stringify({ content })
     );
 
-    public setClipBoardNickName = (clipId: string) => async (nickName: string) => await this.instance.patch<Clipboard>(
+    public modifyClipboard = (clipId: string) => async (patchData: any) => await this.instance.patch<Clipboard>(
         `/api/clipboard/${clipId}/`,
-        qs.stringify({ nickName })
+        qs.stringify(patchData)
+    );
+
+    public deleteClipboard = (clipId: string) => async () => await this.instance.delete<string>(
+        `/api/clipboard/${clipId}/`
     );
 
     public getClipboard = (clipId: string) => async () => await this.instance.get<Clipboard>(`/api/clipboard/${clipId}/`);

@@ -74,6 +74,8 @@ class ClipboardRestApi {
     fun modifyClipboard(
         @PathVariable clipId: String,
         @RequestParam(value = "nickName") nickName: String?,
+        @RequestParam(value = "deleteAfterConfirmation") deleteAfterConfirmation: Boolean?,
+        @RequestParam(value = "createByShortcut") createByShortcut: Boolean?,
     ): Clipboard {
         val clipboard = clipboardRepository.findByIdOrNull(clipId).takeIf { c ->
             c != null
@@ -81,15 +83,24 @@ class ClipboardRestApi {
             HttpStatus.NOT_FOUND, "Can't find clipboard $clipId"
         )
         var needUpdate = false
-        if (nickName!=null){
+        if (nickName != null) {
             clipboard.nickName = nickName
             needUpdate = true
+        }
+        if (deleteAfterConfirmation != null) {
+            clipboard.deleteAfterConfirmation = deleteAfterConfirmation
+            needUpdate = true;
+        }
+        if (createByShortcut != null) {
+            clipboard.createByShortcut = createByShortcut
+            needUpdate = true;
         }
         if (needUpdate) {
             clipboardRepository.save(clipboard)
         }
         return clipboard
     }
+
     data class ClipboardItemsResponse(val content: List<ClipItem>, val totalPages: Int)
 
     /**
@@ -164,6 +175,9 @@ class ClipboardRestApi {
             HttpStatus.NOT_FOUND, "Can't find clipboard $clipId"
         )
         clipItem.preview = content.substring(0, content.length.coerceAtMost(20))
+        if (clipItem.preview.length < content.length){
+            clipItem.preview += "..."
+        }
         val savedItem = clipItemRepository.save(clipItem)
         val savedItemId = savedItem.id.takeIf { x -> x != null } ?: throw ResponseStatusException(
             HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create item in clipboard"

@@ -34,8 +34,21 @@ client.test("Test request status code", function (){
 });
  %}
 
->>! dev/http_response/patch_clipboard.json
+>>! dev/http_response/patch_clipboard_nickName.json
 
+###
+PATCH {{host}}/api/clipboard/{{clipboard_id}}/
+Content-Type: application/x-www-form-urlencoded
+
+createByShortcut=true
+
+> {%
+client.test("Test request status code", function (){
+    client.assert(response.status >= 200 && response.status < 300, `Response status is not 2xx but ${response.status}`)
+});
+ %}
+
+>>! dev/http_response/patch_clipboard_createByShortcut.json
 ###
 GET {{host}}/api/clipboard/{{clipboard_id}}/
 

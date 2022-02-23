@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
-import { AlertColor, Grid, LinearProgress, TextField, Typography, Accordion, AccordionSummary, AccordionDetails, Stack, Box } from '@mui/material';
+import { AlertColor, Grid, LinearProgress, TextField, Typography, Accordion, AccordionSummary, AccordionDetails, Stack, Box, FormControlLabel, Checkbox } from '@mui/material';
 import V1Api, { Clipboard } from 'http/V1Api';
 import { Alert, AlertSnackbar } from './Alert';
 import { LoadingButton } from '@mui/lab';
@@ -11,12 +11,18 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 type RenameClipboardProps = {
     clipId: string;
+    setDeleteAfterConfirmation: CallableFunction;
+    setCreateByShortcut: CallableFunction;
 };
 
 
-export default function EditClipboard({ clipId }: RenameClipboardProps) {
+export default function EditClipboard({
+    clipId,
+    setDeleteAfterConfirmation,
+    setCreateByShortcut
+}: RenameClipboardProps) {
     const { t } = i18n;
-    const [open, setOpen] = React.useState(false);
+    const [expanded, setExpanded] = React.useState(false);
     const [openAlert, setOpenAlert] = React.useState(false);
     const [severity, setSeverity] = useState<AlertColor>("error");
     const [alertText, setAlertText] = useState("");
@@ -32,44 +38,75 @@ export default function EditClipboard({ clipId }: RenameClipboardProps) {
         V1Api.getInstance().getClipboard(clipId)
     );
 
-    const modifyNickNameMutation = useMutation(
-        V1Api.getInstance().setClipBoardNickName(clipId),
+    const modifyClipboard = useMutation(
+        V1Api.getInstance().modifyClipboard(clipId),
         {
             onSuccess: (data) => {
                 setSeverity("info");
-                setAlertText(t("name modified successfully") + data.nickName);
+                setAlertText(t("clipboard modified successfully"));
                 setOpenAlert(true);
-                setOpen(false);
                 setCacheId(cacheId + 1);
-                modifyNickNameMutation.reset();
+                modifyClipboard.reset();
             },
             onError: (error) => {
                 setSeverity("error");
-                setAlertText(`${t("failed to modify name")} ${error}`);
+                setAlertText(`${t("failed to modify clipboard")} ${error}`);
                 setOpenAlert(true);
-                setOpen(false);
-                modifyNickNameMutation.reset();
+                modifyClipboard.reset();
             }
         }
     );
-    const handleClickOpen = () => {
-        setOpen(true);
+
+    const deleteClipboard = useMutation(
+        V1Api.getInstance().deleteClipboard(clipId),
+        {
+            onSuccess: () => {
+                window.location.pathname = "/";
+            },
+            onError: (error) => {
+                setSeverity("error");
+                setAlertText(`${t("failed to delete clipboard")} ${error}`);
+                setOpenAlert(true);
+                modifyClipboard.reset();
+            }
+        }
+    );
+
+    const handleExpand = (event: React.SyntheticEvent, isExpanded: boolean) => {
+        setExpanded(isExpanded);
     };
-    const handleClose = () => {
-        setOpen(false);
-    };
+
+    const handleDeleteAfterConfirmationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = event.target.checked;
+        setDeleteAfterConfirmation(newValue);
+        modifyClipboard.mutate({ deleteAfterConfirmation: newValue })
+    }
+
+    const handleCreateByShortcutChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = event.target.checked;
+        setCreateByShortcut(newValue);
+        modifyClipboard.mutate({ createByShortcut: newValue })
+    }
 
     if (value === "" && data !== undefined && data.nickName !== "") {
         setValue(data.nickName);
+    }
+
+    if (isLoading) {
+        return <LinearProgress />;
     }
 
     if (isError || data === undefined) {
         console.error(`Error while fetching clipboard: ${error}`);
         return <Alert severity={"error"} sx={{ width: '100%' }} >{t("failed to fetch items")}</Alert>;
     }
+
+    setDeleteAfterConfirmation(data.deleteAfterConfirmation);
+    setCreateByShortcut(data.createByShortcut);
+
     return (
         <Box>
-            <Accordion>
+            <Accordion expanded={expanded} onChange={handleExpand}>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"
@@ -90,13 +127,44 @@ export default function EditClipboard({ clipId }: RenameClipboardProps) {
                         </Grid>
                         <Grid item xs={2}>
                             <LoadingButton
-                                onClick={() => modifyNickNameMutation.mutate(value)}
-                                loading={modifyNickNameMutation.isLoading}
+                                onClick={() => modifyClipboard.mutate({ nickName: value })}
+                                loading={modifyClipboard.isLoading}
                                 variant="contained"
                                 fullWidth
                                 size="large"
                             >
                                 {t("save")}
+                            </LoadingButton>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox checked={data.deleteAfterConfirmation} onChange={handleDeleteAfterConfirmationChange} name="deleteAfterConfirmation" />
+                                }
+                                label={t("confirmation is requires before deleting item").toString()}
+                            />
+                        </Grid>
+                        <Grid item xs={4}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox checked={data.createByShortcut} onChange={handleCreateByShortcutChange} name="createByShortcut" />
+                                }
+                                label={t("create item by shortcut directly").toString()}
+                            />
+                        </Grid>
+                        <Grid item xs={2}>
+                            <LoadingButton
+                                onClick={() => {
+                                    if (window.confirm(t("do you want to delete the whole clipboard?"))) { //TODO translate
+                                        deleteClipboard.mutate()
+                                    }
+                                }}
+                                loading={deleteClipboard.isLoading}
+                                variant="contained"
+                                fullWidth
+                                size="large"
+                            >
+                                {t("delete clipboard")}
                             </LoadingButton>
                         </Grid>
                     </Grid>

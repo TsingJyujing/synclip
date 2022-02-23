@@ -25,6 +25,8 @@ open class Clipboard {
         protected set
 
     open var nickName: String = ""
+    open var deleteAfterConfirmation: Boolean = false
+    open var createByShortcut: Boolean = false
 
     open lateinit var created: Date
 
