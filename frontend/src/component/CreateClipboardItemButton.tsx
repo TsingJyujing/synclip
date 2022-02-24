@@ -16,11 +16,10 @@ import i18n from 'i18n';
 type CreateClipboardItemButtonProps = {
     clipId: string;
     reloadList: CallableFunction;
-    createByShortcut: boolean;
+    createByShortcutRef: React.MutableRefObject<boolean>;
 };
 
-
-export default function CreateClipboardItemButton({ clipId, reloadList, createByShortcut }: CreateClipboardItemButtonProps) {
+export default function CreateClipboardItemButton({ clipId, reloadList, createByShortcutRef }: CreateClipboardItemButtonProps) {
     const { t } = i18n;
     const [open, setOpen] = React.useState(false);
     const [openAlert, setOpenAlert] = React.useState(false);
@@ -36,7 +35,7 @@ export default function CreateClipboardItemButton({ clipId, reloadList, createBy
         const text = ev.clipboardData?.getData("text/plain");
         if (text !== undefined && text !== "") {
             if (!open) {
-                if (createByShortcut) {
+                if (createByShortcutRef.current) {
                     createItemMutation.mutate(text);
                 } else {
                     setOpen(true);
@@ -58,7 +57,9 @@ export default function CreateClipboardItemButton({ clipId, reloadList, createBy
         }
     };
 
-    React.useEffect(() => document.addEventListener("paste", processPasteEvent), []);
+    React.useEffect(() => {
+        document.addEventListener("paste", processPasteEvent)
+    }, []);
 
     const createItemMutation = useMutation(
         V1Api.getInstance().createClipBoardItem(clipId),
@@ -80,6 +81,7 @@ export default function CreateClipboardItemButton({ clipId, reloadList, createBy
             }
         }
     );
+
     const handleClickOpen = () => {
         setOpen(true);
     };

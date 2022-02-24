@@ -158,7 +158,12 @@ export default function ClipboardPage() {
     const [cacheId, setCacheId] = useState(1);
     const disableCache = () => { setCacheId(cacheId + 1) };
     const [deleteAfterConfirmation, setDeleteAfterConfirmation] = useState(true);
-    const [createByShortcut, setCreateByShortcut] = useState(true);
+    const [createByShortcut, _setCreateByShortcut] = useState(true);
+    const createByShortcutRef = React.useRef(createByShortcut);
+    const setCreateByShortcut = (value: boolean) => {
+        createByShortcutRef.current = value;
+        _setCreateByShortcut(value);
+    }
     if (clipId === undefined) {
         return <Alert severity={"error"} sx={{ width: '100%' }} />;
     }
@@ -176,7 +181,7 @@ export default function ClipboardPage() {
                 key="create-clipboard-item"
                 clipId={clipId}
                 reloadList={disableCache}
-                createByShortcut={createByShortcut}
+                createByShortcutRef={createByShortcutRef}
             />
         </Grid>
         <Grid item xs={12}>

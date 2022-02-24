@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
-import { AlertColor, Grid, LinearProgress, TextField, Typography, Accordion, AccordionSummary, AccordionDetails, Stack, Box, FormControlLabel, Checkbox } from '@mui/material';
+import { AlertColor, Grid, LinearProgress, TextField, Typography, Accordion, AccordionSummary, AccordionDetails, Stack, Box, FormControlLabel, Checkbox, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import V1Api, { Clipboard } from 'http/V1Api';
 import { Alert, AlertSnackbar } from './Alert';
 import { LoadingButton } from '@mui/lab';
 import i18n from 'i18n';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+import QRCode from "react-qr-code";
 
 type RenameClipboardProps = {
     clipId: string;
@@ -24,6 +24,7 @@ export default function EditClipboard({
     const { t } = i18n;
     const [expanded, setExpanded] = React.useState(false);
     const [openAlert, setOpenAlert] = React.useState(false);
+    const [openQRCode, setOpenQRCode] = React.useState(false);
     const [severity, setSeverity] = useState<AlertColor>("error");
     const [alertText, setAlertText] = useState("");
     const [value, setValue] = React.useState("");
@@ -112,7 +113,7 @@ export default function EditClipboard({
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
-                    {isLoading ? <LinearProgress /> : <Typography variant='h4'>{data?.nickName || "No Name"}</Typography>}
+                    {isLoading ? <LinearProgress /> : <Typography variant='h4'>{data?.nickName || t("No Name")}</Typography>}
                 </AccordionSummary>
                 <AccordionDetails>
                     <Grid container spacing={2}>
@@ -153,13 +154,26 @@ export default function EditClipboard({
                             />
                         </Grid>
                         <Grid item xs={2}>
+                            <Button
+                                onClick={() => {
+                                    setOpenQRCode(true)
+                                }}
+                                variant="contained"
+                                fullWidth
+                                size="large"
+                            >
+                                {t("QR Code")}
+                            </Button>
+                        </Grid>
+                        <Grid item xs={2}>
                             <LoadingButton
                                 onClick={() => {
-                                    if (window.confirm(t("do you want to delete the whole clipboard?"))) { //TODO translate
+                                    if (window.confirm(t("do you want to delete the whole clipboard?"))) {
                                         deleteClipboard.mutate()
                                     }
                                 }}
                                 loading={deleteClipboard.isLoading}
+                                color="error"
                                 variant="contained"
                                 fullWidth
                                 size="large"
@@ -171,6 +185,18 @@ export default function EditClipboard({
                 </AccordionDetails>
             </Accordion>
             <AlertSnackbar open={openAlert} setOpen={setOpenAlert} severity={severity}>{alertText}</AlertSnackbar>
+            <Dialog
+                onClose={() => setOpenQRCode(false)}
+                aria-labelledby="customized-dialog-title"
+                open={openQRCode}
+            >
+                <DialogTitle>
+                    {t("Use App to scan this QR code")}
+                </DialogTitle>
+                <DialogContent dividers>
+                    <QRCode value={window.location.toString()} />
+                </DialogContent>
+            </Dialog>
         </Box>
     );
 }
