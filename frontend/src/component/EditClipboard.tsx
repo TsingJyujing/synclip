@@ -117,7 +117,7 @@ export default function EditClipboard({
                 </AccordionSummary>
                 <AccordionDetails>
                     <Grid container spacing={2}>
-                        <Grid item xs={10}>
+                        <Grid item xs={12} md={10}>
                             <TextField
                                 fullWidth
                                 label={t("nickname")}
@@ -126,7 +126,7 @@ export default function EditClipboard({
                                 onChange={handleChange}
                             />
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid item xs={12} md={2}>
                             <LoadingButton
                                 onClick={() => modifyClipboard.mutate({ nickName: value })}
                                 loading={modifyClipboard.isLoading}
@@ -137,7 +137,7 @@ export default function EditClipboard({
                                 {t("save")}
                             </LoadingButton>
                         </Grid>
-                        <Grid item xs={4}>
+                        <Grid item xs={6} md={4}>
                             <FormControlLabel
                                 control={
                                     <Checkbox checked={data.deleteAfterConfirmation} onChange={handleDeleteAfterConfirmationChange} name="deleteAfterConfirmation" />
@@ -145,7 +145,7 @@ export default function EditClipboard({
                                 label={t("confirmation is requires before deleting item").toString()}
                             />
                         </Grid>
-                        <Grid item xs={4}>
+                        <Grid item xs={6} md={4}>
                             <FormControlLabel
                                 control={
                                     <Checkbox checked={data.createByShortcut} onChange={handleCreateByShortcutChange} name="createByShortcut" />
@@ -153,7 +153,7 @@ export default function EditClipboard({
                                 label={t("create item by shortcut directly").toString()}
                             />
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid item xs={6} md={2}>
                             <Button
                                 onClick={() => {
                                     setOpenQRCode(true)
@@ -165,7 +165,7 @@ export default function EditClipboard({
                                 {t("QR Code")}
                             </Button>
                         </Grid>
-                        <Grid item xs={2}>
+                        <Grid item xs={6} md={2}>
                             <LoadingButton
                                 onClick={() => {
                                     if (window.confirm(t("do you want to delete the whole clipboard?"))) {
