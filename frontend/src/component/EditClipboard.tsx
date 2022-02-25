@@ -194,7 +194,7 @@ export default function EditClipboard({
                     {t("Use App to scan this QR code")}
                 </DialogTitle>
                 <DialogContent dividers>
-                    <QRCode value={window.location.toString()} />
+                    <QRCode value={V1Api.getInstance().getUri(`/api/clipboard/${clipId}`)} />
                 </DialogContent>
             </Dialog>
         </Box>
