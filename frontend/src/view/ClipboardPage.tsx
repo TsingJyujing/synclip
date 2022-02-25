@@ -1,29 +1,23 @@
 import React, { useState } from "react";
 import i18n from 'i18n';
+import { Helmet } from "react-helmet";
 import { Link, useParams } from "react-router-dom";
-import Grid from '@mui/material/Grid';
 import { useMutation, useQuery } from "react-query";
-import V1Api, { ClipItem, ListClipItems } from "http/V1Api";
-import { AlertColor, Box, IconButton, LinearProgress } from "@mui/material";
+
+import CreateClipboardItemButton from "component/CreateClipboardItemButton";
+import EditClipboard from "component/EditClipboard";
 import { Alert, AlertSnackbar } from "component/Alert";
 import { PaginatorWithCombo } from "component/Paginator";
+import V1Api, { ClipItem, ListClipItems } from "http/V1Api";
 
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import Avatar from '@mui/material/Avatar';
+import { AlertColor, IconButton, LinearProgress, ListItemAvatar, List, ListItemButton, ListItem, ListItemText, Avatar, Grid } from "@mui/material";
+
 import DownloadIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+
 import clipboard from 'clipboardy';
-
-import CreateClipboardItemButton from "component/CreateClipboardItemButton";
-import { Helmet } from "react-helmet";
-import EditClipboard from "component/EditClipboard";
-import { copyImageToClipboard, requestClipboardWritePermission } from 'copy-image-clipboard'
-
+import { copyImageToClipboard } from 'copy-image-clipboard'
 
 type ClipItemBoxProp = {
     clipId: string;

@@ -1,17 +1,11 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
 import { useState } from 'react';
 import { useMutation } from 'react-query';
-import { AlertColor, Box, TextField } from '@mui/material';
+import { AlertColor, Box, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import V1Api, { CreateItemRequest } from 'http/V1Api';
-import { AlertSnackbar } from './Alert';
+import { AlertSnackbar } from 'component/Alert';
 import { LoadingButton } from '@mui/lab';
 import i18n from 'i18n';
-import { read } from 'fs';
 
 
 type CreateClipboardItemButtonProps = {
@@ -27,7 +21,6 @@ export default function CreateClipboardItemButton({ clipId, reloadList, createBy
     const [severity, setSeverity] = useState<AlertColor>("error");
     const [alertText, setAlertText] = useState("");
     const [value, setValue] = React.useState<CreateItemRequest | undefined>();
-    const [file, setFile] = React.useState<File>();
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (value !== undefined) {
             setValue({ ...value, content: event.target.value });
@@ -36,59 +29,58 @@ export default function CreateClipboardItemButton({ clipId, reloadList, createBy
         }
     };
 
-    const processPasteEvent = (ev: ClipboardEvent) => {
-        const text = ev.clipboardData?.getData("text/plain");
-        if (text !== undefined && text !== "") {
-            const requestValue: CreateItemRequest = {
-                content: text,
-                mimeType: "text/plain",
-            };
-            if (!open) {
-                if (createByShortcutRef.current) {
-                    createItemMutation.mutate(requestValue);
-                } else {
-                    setValue(requestValue);
-                    setOpen(true);
+
+    React.useEffect(() => {
+        document.addEventListener("paste", (ev: ClipboardEvent) => {
+            const text = ev.clipboardData?.getData("text/plain");
+            if (text !== undefined && text !== "") {
+                const requestValue: CreateItemRequest = {
+                    content: text,
+                    mimeType: "text/plain",
+                };
+                if (!open) {
+                    if (createByShortcutRef.current) {
+                        createItemMutation.mutate(requestValue);
+                    } else {
+                        setValue(requestValue);
+                        setOpen(true);
+                    }
                 }
-            }
-        } else {
-            const items = ev.clipboardData?.items;
-            if (items !== undefined) {
-                for (let i = 0; i < items?.length; i++) {
-                    const item = items[i];
-                    if (item.type.indexOf("image") !== -1) {
-                        const file = item.getAsFile();
-                        if (file !== null) {
-                            const fileReader = new FileReader();
-                            const url = fileReader.readAsDataURL(file);
-                            fileReader.onloadend = (e: ProgressEvent<FileReader>) => {
-                                const result = fileReader.result;
-                                if (typeof result === "string") {
-                                    const requestValue = {
-                                        mimeType: item.type,
-                                        content: result
-                                    };
-                                    if (createByShortcutRef.current) {
-                                        createItemMutation.mutate(requestValue);
+            } else {
+                const items = ev.clipboardData?.items;
+                if (items !== undefined) {
+                    for (let i = 0; i < items?.length; i++) {
+                        const item = items[i];
+                        if (item.type.indexOf("image") !== -1) {
+                            const file = item.getAsFile();
+                            if (file !== null) {
+                                const fileReader = new FileReader();
+                                const url = fileReader.readAsDataURL(file);
+                                fileReader.onloadend = (e: ProgressEvent<FileReader>) => {
+                                    const result = fileReader.result;
+                                    if (typeof result === "string") {
+                                        const requestValue = {
+                                            mimeType: item.type,
+                                            content: result
+                                        };
+                                        if (createByShortcutRef.current) {
+                                            createItemMutation.mutate(requestValue);
+                                        } else {
+                                            setValue(requestValue)
+                                            setOpen(true);
+                                        }
                                     } else {
-                                        setValue(requestValue)
-                                        setOpen(true);
+                                        console.error(`Get unexpected result type: ${typeof result}`)
                                     }
-                                } else {
-                                    console.error(`Get unexpected result type: ${typeof result}`)
                                 }
+                                console.log("Got url: " + url)
+                                break;
                             }
-                            console.log("Got url: " + url)
-                            break;
                         }
                     }
                 }
             }
-        }
-    };
-
-    React.useEffect(() => {
-        document.addEventListener("paste", processPasteEvent)
+        })
     }, []);
 
     const createItemMutation = useMutation(
@@ -141,7 +133,7 @@ export default function CreateClipboardItemButton({ clipId, reloadList, createBy
                             value={value?.content}
                             onChange={handleChange}
                         />) : (
-                            <img src={value.content} />
+                            <img src={value.content} alt="from clipboard" />
                         )
                     }
                 </DialogContent>

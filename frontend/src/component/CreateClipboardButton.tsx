@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import i18n from 'i18n';
 import { useMutation } from "react-query";
 import V1Api from "http/V1Api";
-import LoadingButton from '@mui/lab/LoadingButton';
+import { LoadingButton } from '@mui/lab';
 import { AlertSnackbar } from "component/Alert";
 
 
