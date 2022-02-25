@@ -24,7 +24,9 @@
         "do you want to delete the whole clipboard?": "Do you want to delete the whole clipboard?",
         "delete clipboard": "Delete Clipboard",
         "Use App to scan this QR code": "Use App to scan this QR code",
-        "QR Code":"QR Code",
-        "No Name":"Unnamed"
+        "QR Code": "QR Code",
+        "No Name": "Unnamed",
+        "Firefox notify": "You're using firefox! You need to set dom.events.asyncClipboard.clipboardItem preference to true if you want to copy image to clipboard. To change preferences in Firefox, visit about:config.",
+        "created at": "Created at"
     }
 }

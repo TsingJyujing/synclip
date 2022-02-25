@@ -5,6 +5,9 @@ import com.github.tsingjyujing.synclip.dao.ClipboardRepository
 import com.github.tsingjyujing.synclip.dao.S3Storage
 import com.github.tsingjyujing.synclip.entity.ClipItem
 import com.github.tsingjyujing.synclip.entity.Clipboard
+import com.github.tsingjyujing.synclip.util.createThumbnailData
+import eu.maxschuster.dataurl.DataUrlSerializer
+import eu.maxschuster.dataurl.IDataUrlSerializer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,11 +19,12 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import java.util.*
 import javax.annotation.PostConstruct
-
 
 @RestController
 @RequestMapping("api/clipboard")
@@ -89,11 +93,11 @@ class ClipboardRestApi {
         }
         if (deleteAfterConfirmation != null) {
             clipboard.deleteAfterConfirmation = deleteAfterConfirmation
-            needUpdate = true;
+            needUpdate = true
         }
         if (createByShortcut != null) {
             clipboard.createByShortcut = createByShortcut
-            needUpdate = true;
+            needUpdate = true
         }
         if (needUpdate) {
             clipboardRepository.save(clipboard)
@@ -147,13 +151,21 @@ class ClipboardRestApi {
     /**
      * Get full binary content from clipboard item
      */
-    @GetMapping("/{clipId}/item/{itemId}/content")
+    @GetMapping("/{clipId}/item/{itemId}/{targetData}")
     fun getClipboardItemContent(
-        @PathVariable clipId: String, @PathVariable itemId: String
+        @PathVariable clipId: String,
+        @PathVariable itemId: String,
+        @PathVariable targetData: String,
     ): ResponseEntity<InputStreamResource> {
-        val streamRes = InputStreamResource(s3Storage.amazonS3.getObject(bucketName, "$clipId/$itemId").objectContent)
+        val streamRes = InputStreamResource(
+            s3Storage.amazonS3.getObject(bucketName, "$clipId/$itemId/$targetData").objectContent
+        )
         val httpHeaders = HttpHeaders()
-        httpHeaders.contentLength = s3Storage.amazonS3.getObjectMetadata(bucketName, "$clipId/$itemId").contentLength
+        httpHeaders.contentType = MediaType.parseMediaType(getAndVerifyClipItem(clipId, itemId).mimeType)
+        httpHeaders.contentLength = s3Storage.amazonS3.getObjectMetadata(
+            bucketName,
+            "$clipId/$itemId/$targetData"
+        ).contentLength
         return ResponseEntity<InputStreamResource>(
             streamRes,
             httpHeaders,
@@ -166,24 +178,40 @@ class ClipboardRestApi {
      */
     @PutMapping("/{clipId}/item/")
     fun createNewClipboardItem(
-        @PathVariable clipId: String, @RequestParam(value = "content") content: String
+        @PathVariable clipId: String,
+        @RequestParam(value = "content") content: String,
+        @RequestParam(value = "mimeType") mimeType: String,
     ): ClipItem {
         val clipItem = ClipItem()
+        clipItem.id = UUID.randomUUID().toString()
         clipItem.clipboard = clipboardRepository.findByIdOrNull(clipId).takeIf { c ->
             c != null
         } ?: throw ResponseStatusException(
             HttpStatus.NOT_FOUND, "Can't find clipboard $clipId"
         )
-        clipItem.preview = content.substring(0, content.length.coerceAtMost(20))
-        if (clipItem.preview.length < content.length){
-            clipItem.preview += "..."
+        clipItem.mimeType = mimeType
+        when (mimeType) {
+            "text/plain" -> {
+                clipItem.preview = content.substring(0, content.length.coerceAtMost(20))
+                if (clipItem.preview.length < content.length) {
+                    clipItem.preview += "..."
+                }
+                s3Storage.putText(bucketName, "$clipId/${clipItem.id}/content", content)
+            }
+            "image/png" -> {
+                val serializer: IDataUrlSerializer = DataUrlSerializer()
+                val dataUrl = serializer.unserialize(content)
+                clipItem.preview = "<$mimeType>"
+                s3Storage.putBinary(bucketName, "$clipId/${clipItem.id}/content", dataUrl.data)
+                s3Storage.putBinary(bucketName, "$clipId/${clipItem.id}/preview", createThumbnailData(dataUrl.data))
+            }
+            else -> {
+                throw  ResponseStatusException(
+                    HttpStatus.UNPROCESSABLE_ENTITY, "Can not process type $mimeType"
+                )
+            }
         }
-        val savedItem = clipItemRepository.save(clipItem)
-        val savedItemId = savedItem.id.takeIf { x -> x != null } ?: throw ResponseStatusException(
-            HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create item in clipboard"
-        )
-        s3Storage.putText(bucketName, "$clipId/$savedItemId", content)
-        return savedItem
+        return clipItemRepository.save(clipItem)
     }
 
     // DELETE
@@ -211,7 +239,7 @@ class ClipboardRestApi {
         clipItemRepository.delete(
             getAndVerifyClipItem(clipId, itemId)
         )
-        s3Storage.removeFile(bucketName, "$clipId/$itemId")
+        s3Storage.removeDir(bucketName, "$clipId/$itemId")
         return ResponseEntity<Void>(HttpStatus.NO_CONTENT)
     }
 

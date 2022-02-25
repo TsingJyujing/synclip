@@ -30,6 +30,7 @@ export default function CreateClipboardButton() {
                 loading={createClipBoardMutation.isLoading}
                 loadingPosition="end"
                 variant="contained"
+                fullWidth
             >
                 {t('create new clipboard')}
             </LoadingButton>

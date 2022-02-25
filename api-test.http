@@ -80,7 +80,7 @@ client.test("Test request status code", function (){
 PUT {{host}}/api/clipboard/{{clipboard_id}}/item/
 Content-Type: application/x-www-form-urlencoded
 
-content=aaaaa
+content=aaaaa&mimeType=text%2Fplain
 
 > {%
 client.test("Test request status code", function (){
@@ -125,7 +125,7 @@ client.test("Test response correctness", function (){
 PUT {{host}}/api/clipboard/{{clipboard_id}}/item/
 Content-Type: application/x-www-form-urlencoded
 
-content=bbbbbdhadkjhalskdhlaksjhd
+content=bbbbbdhadkjhalskdhlaksjhd&mimeType=text%2Fplain
 
 > {%
 client.test("Test request status code", function (){

@@ -6,12 +6,13 @@ declare module 'axios' {
 
 abstract class AbstractHttpClient {
     protected readonly instance: AxiosInstance;
+    protected readonly baseURL: string;
 
     public constructor(baseURL: string) {
         this.instance = axios.create({
             baseURL,
         });
-
+        this.baseURL = baseURL;
         this._initializeResponseInterceptor();
     }
 

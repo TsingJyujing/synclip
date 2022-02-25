@@ -29,6 +29,7 @@ dependencies {
     implementation("com.amazonaws:aws-java-sdk-s3")
     runtimeOnly("mysql:mysql-connector-java")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("eu.maxschuster:dataurl:2.0.0")
 }
 
 tasks.withType<KotlinCompile> {

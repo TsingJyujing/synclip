@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import i18n from 'i18n';
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Grid from '@mui/material/Grid';
 import { useMutation, useQuery } from "react-query";
 import V1Api, { ClipItem, ListClipItems } from "http/V1Api";
@@ -14,7 +14,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Avatar from '@mui/material/Avatar';
-
+import DownloadIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import clipboard from 'clipboardy';
@@ -22,6 +22,8 @@ import clipboard from 'clipboardy';
 import CreateClipboardItemButton from "component/CreateClipboardItemButton";
 import { Helmet } from "react-helmet";
 import EditClipboard from "component/EditClipboard";
+import { copyImageToClipboard, requestClipboardWritePermission } from 'copy-image-clipboard'
+
 
 type ClipItemBoxProp = {
     clipId: string;
@@ -36,12 +38,12 @@ function ClipItemBox({ clipId, item, reloadList, deleteAfterConfirmation }: Clip
     const [severity, setSeverity] = useState<AlertColor>("error");
     const [alertText, setAlertText] = useState("");
 
+    const isImage = item.mimeType.match(/image\/.*/) !== null;
+
     const deleteItemMutation = useMutation(
         V1Api.getInstance().deleteClipboardItem(clipId, item.id),
         {
-            onSuccess: () => {
-                reloadList();
-            },
+            onSuccess: () => reloadList(),
             onError: (error) => {
                 deleteItemMutation.reset();
                 setSeverity("error");
@@ -51,24 +53,36 @@ function ClipItemBox({ clipId, item, reloadList, deleteAfterConfirmation }: Clip
         }
     );
 
-    const getContentMutation = useMutation(
-        V1Api.getInstance().getClipboardItemContent(clipId, item.id),
+    const notifyCopySuccess = () => {
+        setSeverity("info");
+        setAlertText(t("copied to clipboard") + item.preview);
+        setOpen(true);
+    }
+
+    const getStringContentMutation = useMutation(
+        V1Api.getInstance().getClipboardItemStringContent(clipId, item.id),
         {
-            onSuccess: (data) => clipboard.write(data).then(
-                () => {
-                    setSeverity("info");
-                    setAlertText(t("copied to clipboard") + item.preview);
-                    setOpen(true);
-                }
-            ),
+            onSuccess: (data) => clipboard.write(data).then(notifyCopySuccess),
             onError: () => {
-                getContentMutation.reset();
                 setSeverity("error");
                 setAlertText(t("failed to fetch items"));
                 setOpen(true);
+                getStringContentMutation.reset();
             }
         }
     );
+
+    const copyToClipboard = () => {
+        if (isImage) {
+            const contentUrl = V1Api.getInstance().getUri(`/api/clipboard/${clipId}/item/${item.id}/content/`);
+            console.log("Copy image to clipboard:" + contentUrl)
+            copyImageToClipboard(contentUrl).then(notifyCopySuccess).catch((e) => {
+                console.error('Error while copy image to clipboard:', e)
+            })
+        } else {
+            getStringContentMutation.mutate()
+        }
+    }
 
     return <ListItem
         secondaryAction={
@@ -82,18 +96,29 @@ function ClipItemBox({ clipId, item, reloadList, deleteAfterConfirmation }: Clip
         }
     >
         <ListItemAvatar >
-            <ListItemButton onClick={() => getContentMutation.mutate()}>
-                <Avatar>
-                    <ContentCopyIcon color="success" />
-                </Avatar>
+            <ListItemButton onClick={copyToClipboard}>
+                <ContentCopyIcon color="success" />
             </ListItemButton>
         </ListItemAvatar>
 
+        {isImage ? (<ListItemAvatar >
+            <Link to={V1Api.getInstance().getUri(`/api/clipboard/${clipId}/item/${item.id}/content/`)} download={`${item.id}`} target="_blank">
+                <ListItemButton>
+                    <DownloadIcon color="info" />
+                </ListItemButton>
+            </Link>
+        </ListItemAvatar>) : undefined}
 
-        <ListItemButton onClick={() => getContentMutation.mutate()} >
+        {isImage ? (<ListItemAvatar >
+            <ListItemButton onClick={copyToClipboard}>
+                <Avatar src={V1Api.getInstance().getUri(`/api/clipboard/${clipId}/item/${item.id}/preview/`)} variant="rounded" />
+            </ListItemButton>
+        </ListItemAvatar>) : undefined}
+
+        <ListItemButton onClick={copyToClipboard} >
             <ListItemText
                 primary={item.preview}
-                secondary={item.created}//TODO using format like several minutes ago/few days ago...
+                secondary={`${t("created at")} ${item.created}`}
             />
         </ListItemButton>
 

@@ -1,6 +1,7 @@
 package com.github.tsingjyujing.synclip.dao
 
 import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.S3ObjectSummary
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -25,6 +26,12 @@ class S3Storage {
 
     fun putText(bucketName: String, objectName: String, data: String) {
         amazonS3.putObject(bucketName, objectName, data)
+    }
+
+    fun putBinary(bucketName: String, objectName: String, data: ByteArray) {
+        val meta = ObjectMetadata()
+        meta.contentLength = data.size.toLong()
+        amazonS3.putObject(bucketName, objectName, data.inputStream(), meta)
     }
 
     fun removeFile(bucketName: String, objectName: String) {

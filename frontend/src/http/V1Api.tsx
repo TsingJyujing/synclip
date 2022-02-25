@@ -1,6 +1,7 @@
 import { BACKEND_API_ENDPOINT } from "Config";
 import AbstractHttpClient from "http/AbstractHttpClient";
 import qs from 'qs';
+import urljoin from "url-join";
 
 export type Clipboard = {
     id: string;
@@ -12,6 +13,7 @@ export type Clipboard = {
 
 export type ClipItem = {
     id: string;
+    mimeType: string;
     preview: string;
     created: string;
 };
@@ -20,6 +22,13 @@ export type ListClipItems = {
     totalPages: number;
     content: ClipItem[];
 };
+
+export type CreateItemRequest = {
+    content: string;
+    mimeType: string;
+};
+
+
 class V1Api extends AbstractHttpClient {
 
     private static classInstance?: V1Api;
@@ -31,13 +40,15 @@ class V1Api extends AbstractHttpClient {
         return this.classInstance;
     }
 
+    public getUri = (url: string) => urljoin(this.baseURL, url)
+
     public createClipBoard = async () => await this.instance.post<Clipboard>("/api/clipboard/");
 
     public getClipboardItems = (clipId: string, pageId: number, pageSize: number) => async () => await this.instance.get<ListClipItems>(
         `/api/clipboard/${clipId}/item/?${qs.stringify({ page: pageId - 1, size: pageSize })}`
     );
 
-    public getClipboardItemContent = (clipId: string, itemId: string) => async () => await this.instance.get<string>(
+    public getClipboardItemStringContent = (clipId: string, itemId: string) => async () => await this.instance.get<string>(
         `/api/clipboard/${clipId}/item/${itemId}/content/`
     );
 
@@ -45,9 +56,9 @@ class V1Api extends AbstractHttpClient {
         `/api/clipboard/${clipId}/item/${itemId}`
     );
 
-    public createClipBoardItem = (clipId: string) => async (content: string) => await this.instance.put<ClipItem>(
+    public createClipBoardItem = (clipId: string) => async (data: CreateItemRequest) => await this.instance.put<ClipItem>(
         `/api/clipboard/${clipId}/item/`,
-        qs.stringify({ content })
+        qs.stringify(data)
     );
 
     public modifyClipboard = (clipId: string) => async (patchData: any) => await this.instance.patch<Clipboard>(

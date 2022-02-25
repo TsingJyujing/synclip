@@ -24,7 +24,9 @@
         "do you want to delete the whole clipboard?": "是否删除整个剪切板",
         "delete clipboard": "删除剪切板",
         "Use App to scan this QR code": "请用App扫描二维码",
-        "QR Code":"二维码",
-        "No Name":"未命名"
+        "QR Code": "二维码",
+        "No Name": "未命名",
+        "Firefox notify": "您正在使用Firefox！如果需要复制图片，你需要将 dom.events.asyncClipboard.clipboardItem 选项设置为 true. 请访问 about:config 来在Firefox中更改选项",
+        "created at": "创建于"
     }
 }

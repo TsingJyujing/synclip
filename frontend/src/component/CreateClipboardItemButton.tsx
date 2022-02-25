@@ -7,10 +7,11 @@ import DialogActions from '@mui/material/DialogActions';
 import { useState } from 'react';
 import { useMutation } from 'react-query';
 import { AlertColor, Box, TextField } from '@mui/material';
-import V1Api from 'http/V1Api';
+import V1Api, { CreateItemRequest } from 'http/V1Api';
 import { AlertSnackbar } from './Alert';
 import { LoadingButton } from '@mui/lab';
 import i18n from 'i18n';
+import { read } from 'fs';
 
 
 type CreateClipboardItemButtonProps = {
@@ -25,21 +26,29 @@ export default function CreateClipboardItemButton({ clipId, reloadList, createBy
     const [openAlert, setOpenAlert] = React.useState(false);
     const [severity, setSeverity] = useState<AlertColor>("error");
     const [alertText, setAlertText] = useState("");
-    const [value, setValue] = React.useState("");
+    const [value, setValue] = React.useState<CreateItemRequest | undefined>();
     const [file, setFile] = React.useState<File>();
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(event.target.value);
+        if (value !== undefined) {
+            setValue({ ...value, content: event.target.value });
+        } else {
+            setValue({ mimeType: "text/plain", content: event.target.value });
+        }
     };
 
     const processPasteEvent = (ev: ClipboardEvent) => {
         const text = ev.clipboardData?.getData("text/plain");
         if (text !== undefined && text !== "") {
+            const requestValue: CreateItemRequest = {
+                content: text,
+                mimeType: "text/plain",
+            };
             if (!open) {
                 if (createByShortcutRef.current) {
-                    createItemMutation.mutate(text);
+                    createItemMutation.mutate(requestValue);
                 } else {
+                    setValue(requestValue);
                     setOpen(true);
-                    setValue(text);
                 }
             }
         } else {
@@ -49,8 +58,29 @@ export default function CreateClipboardItemButton({ clipId, reloadList, createBy
                     const item = items[i];
                     if (item.type.indexOf("image") !== -1) {
                         const file = item.getAsFile();
-                        // TODO handle the file
-                        break;
+                        if (file !== null) {
+                            const fileReader = new FileReader();
+                            const url = fileReader.readAsDataURL(file);
+                            fileReader.onloadend = (e: ProgressEvent<FileReader>) => {
+                                const result = fileReader.result;
+                                if (typeof result === "string") {
+                                    const requestValue = {
+                                        mimeType: item.type,
+                                        content: result
+                                    };
+                                    if (createByShortcutRef.current) {
+                                        createItemMutation.mutate(requestValue);
+                                    } else {
+                                        setValue(requestValue)
+                                        setOpen(true);
+                                    }
+                                } else {
+                                    console.error(`Get unexpected result type: ${typeof result}`)
+                                }
+                            }
+                            console.log("Got url: " + url)
+                            break;
+                        }
                     }
                 }
             }
@@ -103,17 +133,26 @@ export default function CreateClipboardItemButton({ clipId, reloadList, createBy
                     {t("create clipboard item")}
                 </DialogTitle>
                 <DialogContent dividers>
-                    <TextField
-                        id="outlined-multiline-flexible"
-                        label={t("text to create")}
-                        multiline
-                        value={value}
-                        onChange={handleChange}
-                    />
+                    {
+                        value === undefined || value.mimeType === "text/plain" ? (<TextField
+                            id="outlined-multiline-flexible"
+                            label={t("text to create")}
+                            multiline
+                            value={value?.content}
+                            onChange={handleChange}
+                        />) : (
+                            <img src={value.content} />
+                        )
+                    }
                 </DialogContent>
                 <DialogActions>
                     <LoadingButton
-                        onClick={() => createItemMutation.mutate(value)}
+                        onClick={() => {
+                            if (value !== undefined && value.content.length > 0) {
+                                createItemMutation.mutate(value)
+                            }
+                        }}
+                        disabled={!(value !== undefined && value.content.length > 0)}
                         loading={createItemMutation.isLoading}
                         variant="contained"
                     >
