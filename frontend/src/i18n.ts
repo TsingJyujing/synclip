@@ -37,7 +37,6 @@ i18n.use(initReactI18next).init({
         () => {
             const currentLocalLanguage = getBrowserLocales({ languageCodeOnly: true });
             const useableLanguage = currentLocalLanguage.filter(lng => lng in resources);
-            console.log(`Select ${useableLanguage} from ${currentLocalLanguage}`);
             if (useableLanguage.length > 0) {
                 return useableLanguage[0]
             } else {
