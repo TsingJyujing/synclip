@@ -7,6 +7,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import i18n from 'i18n';
 import CreateClipboardButton from 'component/CreateClipboardButton';
 import { makeStyles, createStyles, useTheme, Theme } from '@material-ui/core/styles';
+import { LocalClipboardHistory } from 'component/LocalClipboardHistory';
 
 const drawerWidth = 240;
 const useStyles = makeStyles((theme: Theme) =>
@@ -92,6 +93,10 @@ export default function AppBasic({ children }: Props) {
                     <CreateClipboardButton />
                 </ListItem>
             </List>
+            
+            <Divider />
+            <LocalClipboardHistory />
+
             <Divider />
             <List>
                 <ListItem button

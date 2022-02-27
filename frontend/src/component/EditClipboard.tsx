@@ -36,7 +36,12 @@ export default function EditClipboard({
 
     const { isLoading, isError, data, error } = useQuery<Clipboard>(
         [clipId, cacheId],
-        V1Api.getInstance().getClipboard(clipId)
+        V1Api.getInstance().getClipboard(clipId),
+        {
+            onError: ()=>{
+                window.localStorage.removeItem(clipId)
+            }
+        }
     );
 
     const modifyClipboard = useMutation(
@@ -63,6 +68,7 @@ export default function EditClipboard({
         {
             onSuccess: () => {
                 window.location.pathname = "/";
+                window.localStorage.removeItem(clipId);
             },
             onError: (error) => {
                 setSeverity("error");
@@ -104,6 +110,7 @@ export default function EditClipboard({
 
     setDeleteAfterConfirmation(data.deleteAfterConfirmation);
     setCreateByShortcut(data.createByShortcut);
+    window.localStorage.setItem(clipId, data.nickName);
 
     return (
         <Box>

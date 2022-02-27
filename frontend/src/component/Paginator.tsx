@@ -3,6 +3,7 @@ import { Button, Grid, MenuItem, Select } from "@mui/material";
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { SelectChangeEvent } from "@mui/material/Select/SelectInput";
+import { Counter } from "util/Utils";
 
 type PaginatorWithComboProps = {
     pageId: number;
@@ -10,12 +11,6 @@ type PaginatorWithComboProps = {
     pageCount: number;
 };
 
-
-function* Counter(n: number) {
-    for (let i = 0; i < n; i++) {
-        yield i
-    }
-}
 
 export function PaginatorWithCombo({ pageId, setPageId, pageCount }: PaginatorWithComboProps) {
     const handleChangePageId = (event: SelectChangeEvent<number>) => {
