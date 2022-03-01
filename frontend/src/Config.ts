@@ -1,1 +1,0 @@
-export const BACKEND_API_ENDPOINT: string = process.env.REACT_APP_BACKEND_API_ENDPOINT || "http://127.0.0.1:8080/";
