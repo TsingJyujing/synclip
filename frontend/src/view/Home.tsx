@@ -22,10 +22,9 @@ export default function Home() {
                 </Grid>
                 <Grid item xs={12}>
                     <Typography variant="h6">{t("synclip introduction")}</Typography>
-                    
                 </Grid>
                 <Grid item xs={12}>
-                {
+                    {
                         (isFirefox ? <Typography variant="h6" color={"yellow"}>{t("Firefox notify")}</Typography> : undefined)
                     }
                 </Grid>

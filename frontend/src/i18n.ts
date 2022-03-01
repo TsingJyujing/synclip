@@ -1,5 +1,5 @@
-import ZH from "./locales/zh.json";
-import EN from "./locales/en.json";
+import ZH from "locales/zh.json";
+import EN from "locales/en.json";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 

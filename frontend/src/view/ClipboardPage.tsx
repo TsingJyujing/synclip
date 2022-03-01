@@ -112,6 +112,7 @@ function ClipItemBox({ clipId, item, reloadList, deleteAfterConfirmation }: Clip
         <ListItemButton onClick={copyToClipboard} >
             <ListItemText
                 primary={item.preview}
+                // TODO convert to local timezone (use UTC for server)
                 secondary={`${t("created at")} ${item.created}`}
             />
         </ListItemButton>

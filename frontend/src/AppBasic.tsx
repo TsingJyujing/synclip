@@ -74,6 +74,7 @@ type Props = {
     children?: JSX.Element;
 };
 
+
 export default function AppBasic({ children }: Props) {
     const { t } = i18n;
     const classes = useStyles();
