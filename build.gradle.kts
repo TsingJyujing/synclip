@@ -8,11 +8,20 @@ plugins {
 }
 
 group = "com.github.tsingjyujing"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
+val mavenRepo: String? = System.getenv("MAVEN_REPO")
 repositories {
-    mavenCentral()
+    if (mavenRepo == null) {
+        System.out.println("Using central maven")
+        mavenCentral()
+    } else {
+        System.out.println("Using maven repo: $mavenRepo")
+        maven {
+            url = uri(mavenRepo)
+        }
+    }
 }
 
 dependencies {
@@ -21,7 +30,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.projectlombok:lombok:1.18.20")
+    implementation("org.projectlombok:lombok:1.18.22")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.data:spring-data-jpa")
     // TODO use v2: https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/setup-project-gradle.html
