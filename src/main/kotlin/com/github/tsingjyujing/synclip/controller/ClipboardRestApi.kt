@@ -17,12 +17,10 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import java.time.Duration
 import java.util.*
 import javax.annotation.PostConstruct
 
@@ -166,6 +164,8 @@ class ClipboardRestApi {
             bucketName,
             "$clipId/$itemId/$targetData"
         ).contentLength
+        httpHeaders.setCacheControl(CacheControl.maxAge(Duration.ofDays(90)))
+        logger.info("Client is fetching content: $itemId")
         return ResponseEntity<InputStreamResource>(
             streamRes,
             httpHeaders,
@@ -190,26 +190,22 @@ class ClipboardRestApi {
             HttpStatus.NOT_FOUND, "Can't find clipboard $clipId"
         )
         clipItem.mimeType = mimeType
-        when (mimeType) {
-            "text/plain" -> {
-                clipItem.preview = content.substring(0, content.length.coerceAtMost(20))
-                if (clipItem.preview.length < content.length) {
-                    clipItem.preview += "..."
-                }
-                s3Storage.putText(bucketName, "$clipId/${clipItem.id}/content", content)
+        if (mimeType == "text/plain") {
+            clipItem.preview = content.substring(0, content.length.coerceAtMost(20))
+            if (clipItem.preview.length < content.length) {
+                clipItem.preview += "..."
             }
-            "image/png" -> {
-                val serializer: IDataUrlSerializer = DataUrlSerializer()
-                val dataUrl = serializer.unserialize(content)
-                clipItem.preview = "<$mimeType>"
-                s3Storage.putBinary(bucketName, "$clipId/${clipItem.id}/content", dataUrl.data)
-                s3Storage.putBinary(bucketName, "$clipId/${clipItem.id}/preview", createThumbnailData(dataUrl.data))
-            }
-            else -> {
-                throw  ResponseStatusException(
-                    HttpStatus.UNPROCESSABLE_ENTITY, "Can not process type $mimeType"
-                )
-            }
+            s3Storage.putText(bucketName, "$clipId/${clipItem.id}/content", content)
+        } else if (mimeType.matches(Regex("image/.*?"))) {
+            val serializer: IDataUrlSerializer = DataUrlSerializer()
+            val dataUrl = serializer.unserialize(content)
+            clipItem.preview = "<$mimeType>"
+            s3Storage.putBinary(bucketName, "$clipId/${clipItem.id}/content", dataUrl.data)
+            s3Storage.putBinary(bucketName, "$clipId/${clipItem.id}/preview", createThumbnailData(dataUrl.data))
+        } else {
+            throw  ResponseStatusException(
+                HttpStatus.UNPROCESSABLE_ENTITY, "Can not process type $mimeType"
+            )
         }
         return clipItemRepository.save(clipItem)
     }
