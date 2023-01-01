@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.6.3"
+    id("org.springframework.boot") version "2.7.7"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
@@ -33,8 +33,7 @@ dependencies {
     implementation("org.projectlombok:lombok:1.18.22")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.data:spring-data-jpa")
-    // TODO use v2: https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/setup-project-gradle.html
-    implementation(platform("com.amazonaws:aws-java-sdk-bom:1.11.1000"))
+    implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.376"))
     implementation("com.amazonaws:aws-java-sdk-s3")
     runtimeOnly("mysql:mysql-connector-java")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
