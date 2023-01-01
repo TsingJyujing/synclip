@@ -3,11 +3,13 @@ package com.github.tsingjyujing.synclip
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
+import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 
 @SpringBootApplication
+@EnableScheduling
 class SynclipApplication {
     @Bean
     fun corsConfigurer(): WebMvcConfigurer {
@@ -25,7 +27,7 @@ class SynclipApplication {
                 registry.addMapping("/**")
                     .allowedOrigins(*(allowedOrigins.toTypedArray()))
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-                    .allowedHeaders("Authorization");
+                    .allowedHeaders("Authorization")
             }
         }
     }

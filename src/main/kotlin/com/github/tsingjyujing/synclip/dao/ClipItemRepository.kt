@@ -21,4 +21,9 @@ interface ClipItemRepository : JpaRepository<ClipItem, String> {
     @Query("delete from ClipItem c where c.clipboard.id = ?1")
     fun deleteAllItemsByClipboardId(clipboardId: String)
 
+
+    @Query(value = "select ci from ClipItem ci where (now() - ci.created) > ?1")
+    fun getExpiredItems(expireInterval: Double): List<ClipItem>
+
+
 }

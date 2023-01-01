@@ -3,7 +3,6 @@ package com.github.tsingjyujing.synclip.entity
 import com.fasterxml.jackson.annotation.JsonIgnore
 import lombok.Getter
 import lombok.Setter
-import org.hibernate.annotations.GenericGenerator
 import java.util.*
 import javax.persistence.*
 
