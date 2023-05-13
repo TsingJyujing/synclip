@@ -17,3 +17,6 @@ s3:
   endpoint: "http://localhost:9000"
   access-key: "minio-access-key-123"
   secret-key: "minio-secret-key-456"
+synclip:
+  clean-interval-ms: 3600000 # 1 hour
+  expire-interval-secs: 7776000 # 90 days

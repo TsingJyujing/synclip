@@ -5,7 +5,8 @@ import com.github.tsingjyujing.synclip.dao.ClipboardRepository
 import com.github.tsingjyujing.synclip.dao.S3Storage
 import com.github.tsingjyujing.synclip.entity.ClipItem
 import com.github.tsingjyujing.synclip.entity.Clipboard
-import com.github.tsingjyujing.synclip.util.createThumbnailData
+import com.github.tsingjyujing.synclip.util.ClipItemUtilities
+import com.github.tsingjyujing.synclip.util.ImageProcess
 import eu.maxschuster.dataurl.DataUrlSerializer
 import eu.maxschuster.dataurl.IDataUrlSerializer
 import org.slf4j.Logger
@@ -123,28 +124,13 @@ class ClipboardRestApi {
         )
     }
 
-    private fun getAndVerifyClipItem(clipId: String, itemId: String): ClipItem {
-        val clipItem: ClipItem = clipItemRepository.findByIdOrNull(itemId).takeIf { i ->
-            i != null
-        } ?: throw ResponseStatusException(
-            HttpStatus.NOT_FOUND, "Can't find clipboard item $itemId"
-        )
-        if (clipItem.clipboard.id != clipId) {
-            logger.warn("Requesting item $itemId with wrong clipid $clipId")
-            throw ResponseStatusException(
-                HttpStatus.FORBIDDEN, "The item $itemId is not owned by $clipId"
-            )
-        }
-        return clipItem
-    }
-
     /**
      * Get basic information of clipboard item
      */
     @GetMapping("/{clipId}/item/{itemId}")
     fun getClipboardItem(
         @PathVariable clipId: String, @PathVariable itemId: String
-    ) = getAndVerifyClipItem(clipId, itemId)
+    ) = ClipItemUtilities(clipItemRepository).getAndVerifyClipItem(clipId, itemId)
 
     /**
      * Get full binary content from clipboard item
@@ -159,7 +145,13 @@ class ClipboardRestApi {
             s3Storage.amazonS3.getObject(bucketName, "$clipId/$itemId/$targetData").objectContent
         )
         val httpHeaders = HttpHeaders()
-        httpHeaders.contentType = MediaType.parseMediaType(getAndVerifyClipItem(clipId, itemId).mimeType)
+        httpHeaders.contentType =
+            MediaType.parseMediaType(
+                ClipItemUtilities(clipItemRepository).getAndVerifyClipItem(
+                    clipId,
+                    itemId
+                ).mimeType
+            )
         httpHeaders.contentLength = s3Storage.amazonS3.getObjectMetadata(
             bucketName,
             "$clipId/$itemId/$targetData"
@@ -201,9 +193,13 @@ class ClipboardRestApi {
             val dataUrl = serializer.unserialize(content)
             clipItem.preview = "<$mimeType>"
             s3Storage.putBinary(bucketName, "$clipId/${clipItem.id}/content", dataUrl.data)
-            s3Storage.putBinary(bucketName, "$clipId/${clipItem.id}/preview", createThumbnailData(dataUrl.data))
+            s3Storage.putBinary(
+                bucketName,
+                "$clipId/${clipItem.id}/preview",
+                ImageProcess.createThumbnailData(dataUrl.data)
+            )
         } else {
-            throw  ResponseStatusException(
+            throw ResponseStatusException(
                 HttpStatus.UNPROCESSABLE_ENTITY, "Can not process type $mimeType"
             )
         }
@@ -233,7 +229,7 @@ class ClipboardRestApi {
         @PathVariable clipId: String, @PathVariable itemId: String
     ): ResponseEntity<Void> {
         clipItemRepository.delete(
-            getAndVerifyClipItem(clipId, itemId)
+            ClipItemUtilities(clipItemRepository).getAndVerifyClipItem(clipId, itemId)
         )
         s3Storage.removeDir(bucketName, "$clipId/$itemId")
         return ResponseEntity<Void>(HttpStatus.NO_CONTENT)
